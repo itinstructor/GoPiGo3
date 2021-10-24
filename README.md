@@ -1,5 +1,7 @@
 # GoPiGo3
 GoPiGo3 Projects
+### Projects
+- OfficeCannon --> The GoPiGo3 launches soft missiles with Dream Cheeky Thunder
 
 ### Purpose
 I am an Information Technology Instructor at Western Nebraska Community College. I teach Information Technology Technical Support, CyberSecurity and Computer Science.
