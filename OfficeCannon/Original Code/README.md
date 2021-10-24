@@ -1,3 +1,4 @@
+## Original project by Dexter Industries
 ## Office Cannon
 ### This example controls the GoPiGo and Office Cannon with a wireless mouse on the USB port.
 
@@ -17,9 +18,6 @@
 - The office cannon needs more than the 600mA that is supplied by USB to fire the projectiles.
 - For this, the we pull the GPIO 32 to HIGH which allows the USB to supply upto 1.2A.
 - The USB power supply is reverted back to normal when the program closes or when the user uses CTRL+CTRL to close the program.
-
-
-
 
 ![ GoPiGo ](https://raw.githubusercontent.com/DexterInd/GoPiGo/master/GoPiGo_Chassis-300.jpg)
 

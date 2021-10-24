@@ -3,12 +3,14 @@
 # with minor changes for user-input from a keyboard.
 #
 # http://www.dexterindustries.com/GoPiGo/
+# ------------------------------------------------
 # History
 # ------------------------------------------------
 # Author     	Date      		Comments
 # John Cole  	April 14  		Initial Authoring
 # Karan			27 June 14		Code cleanup and made more responsive
 # 25 Aug  14		USB high current mode for Raspberry Pi Model B+ added
+# Loring        10/16/21        Convert to EasyGoPyGo3 and Python 3.5
 ##
 ##
 
@@ -26,7 +28,7 @@ import os
 # import struct
 from tkinter import *       # Import tkinter for GUI
 import easygopigo3 as easy  # Import EasyGoPiGo3 library
-gpg = easy.EasyGoPiGo3()
+gpg = easy.EasyGoPiGo3()    # Create EasyGoPiGo3 object
 
 servo_range = [2, 3, 4, 5, 6, 7, 8]
 
@@ -233,7 +235,7 @@ def key_input(event):
     elif key_press == 'z':
         print("Exiting")
         sys.exit()
-    
+
     # elif key_press.isdigit():
     #     if int(key_press) in servo_range:
     #         enable_servo()
@@ -263,7 +265,7 @@ def key_input(event):
 def create_widgets():
     """ Create and layout widgets
         Reference for GUI display
-    
+
     W = Forward      Q = Spin Left
     S = Backward     E = Spin Right
     A = Left         
