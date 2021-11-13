@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-# Based on https://pythonprogramming.net/robotics-raspberry-pi-tutorial-gopigo-introduction
+# Based on
+# https://pythonprogramming.net/robotics-raspberry-pi-tutorial-gopigo-introduction
 # EasyGoPiGo3 documentation: https://gopigo3.readthedocs.io/en/latest
 # Purpose: GoPiGo3 Tkinter remote control program
+# with Dexter Temperature, Humidity and Pressure sensor
 # ------------------------------------------------
 # History
 # ------------------------------------------------
 # Author     Date           Comments
 # Loring     09/12/21       Convert to EasyGoPiGo3, OOP, test with Python 3.5
 # Loring     10/23/21       Add battery voltage display
-# Loring     11/11/21       Add temperature and humidity
+# Loring     11/11/21       Add BME280 sensor display
 
 from tkinter import *       # Import tkinter for GUI
 import sys                  # Used to exit the program
@@ -37,14 +39,16 @@ class GoPiGoGUI:
         # Bind all key input events to the window
         # This will capture all keystrokes for remote control of robot
         self.window.bind_all('<Key>', self.key_input)
-        # after runs a function so many milliseconds after the mainloop starts
-        # this callback function runs when the mainloop isn't busy
-        # after is a non blocking call, it does not interrupt or stall execution
+        # Read the sensor the first time
         self.read_environment()
 
         self.create_widgets()       # Create and layout widgets
 
-        self.window.after(5000, self.read_environment)
+        # Every 10 seconds, read the BME280 sensor
+        # after runs a function so many milliseconds after the mainloop starts
+        # this callback function runs when the mainloop isn't busy
+        # after is a non blocking call, it does not interrupt or stall execution
+        self.window.after(10000, self.read_environment)
 
         self.window.mainloop()      # Start the mainloop of the tkinter program
 
