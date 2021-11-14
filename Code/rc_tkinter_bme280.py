@@ -33,22 +33,25 @@ class GoPiGoGUI:
         # Set the window size and location
         # 350x250 pixels in size, location at 50x50
         self.window.geometry("400x325+50+50")
+        # The window can't be resized
+        self.window.resizable(0, 0)
         # Color and padding to edge of window
         self.window.config(padx=10, pady=10)
         self.window.config(bg=self.BG)
         # Bind all key input events to the window
         # This will capture all keystrokes for remote control of robot
         self.window.bind_all('<Key>', self.key_input)
+
         # Read the sensor the first time
         self.read_environment()
 
         self.create_widgets()       # Create and layout widgets
 
-        # Every 10 seconds, read the BME280 sensor
+        # Every 15 seconds (15000 ms), read the BME280 sensor
         # after runs a function so many milliseconds after the mainloop starts
         # this callback function runs when the mainloop isn't busy
         # after is a non blocking call, it does not interrupt or stall execution
-        self.window.after(10000, self.read_environment)
+        self.window.after(15000, self.refresh_readings)
 
         self.window.mainloop()      # Start the mainloop of the tkinter program
 
@@ -62,8 +65,8 @@ class GoPiGoGUI:
         A = Left         T = Increase Speed
         D = Right        G = Decrease Speed  
         Spacebar = Stop
-        Temp
         Speed: 200      Voltage 
+        Temp          Humidty     Pressure
         Z = Exit    Exit button
         
         """
@@ -79,42 +82,43 @@ class GoPiGoGUI:
         lbl_remote_spacebar = Label(text="Spacebar: Stop", bg=self.BG)
         lbl_remote_z = Label(text="Z: Exit", bg=self.BG)
 
-        lbl_temperature = Label(text="Temp: " + str(round(
-            self.temperature, 2)) + "°F", bg=self.BG)
-        lbl_humidity = Label(text="Humidity: " + str(round(
-            self.humidity, 1)) + "%", bg=self.BG)
-        lbl_pressure = Label(text="Press: " + str(round(
-            self.pressure, 2)) + " inHg", bg=self.BG)
-
-        # Get and display battery voltage
-        btn_voltage = Button(text="Voltage", command=self.get_battery_voltage)
-        # Round the voltage to 1 decimal place
-        voltage = round(self.gpg.volt(), 1)
-        self.lbl_voltage = Label(
-            text="Voltage: " + str(voltage) + "V", bg=self.BG)
-
-        btn_exit = Button(text="Exit", command=self.exit_program)
-
         # Get and display current GoPiGo speed setting
         speed = self.gpg.get_speed()
         self.lbl_speed = Label(text="Speed: " + str(speed), bg=self.BG)
 
+        self.lbl_voltage = Label(
+            text="Voltage: " + str(self.voltage) + "V", bg=self.BG)
+
+        self.lbl_temperature = Label(text="Temp: " + str(round(
+            self.temperature, 2)) + "°F", bg=self.BG)
+        self.lbl_humidity = Label(text="Humidity: " + str(round(
+            self.humidity, 1)) + "%", bg=self.BG)
+        self.lbl_pressure = Label(text="Press: " + str(round(
+            self.pressure, 2)) + " inHg", bg=self.BG)
+
+        btn_exit = Button(text="Exit", command=self.exit_program)
+
         # Grid the widgets
         lbl_remote_w.grid(row=0, column=0, sticky=W)
         lbl_remote_q.grid(row=0, column=1, sticky=W)
+
         lbl_remote_s.grid(row=1, column=0, sticky=W)
         lbl_remote_e.grid(row=1, column=1, sticky=W)
+
         lbl_remote_a.grid(row=2, column=0, sticky=W)
         lbl_remote_t.grid(row=2, column=1, sticky=W)
+
         lbl_remote_d.grid(row=3, column=0, sticky=W)
         lbl_remote_g.grid(row=3, column=1, sticky=W)
+
         lbl_remote_spacebar.grid(row=4, column=0, sticky=W)
-        self.lbl_speed.grid(row=4, column=1, sticky=W)
-        btn_voltage.grid(row=5, column=0, sticky=E)
+
+        self.lbl_speed.grid(row=5, column=0, sticky=W)
         self.lbl_voltage.grid(row=5, column=1, sticky=W)
-        lbl_temperature.grid(row=6, column=0, sticky=W)
-        lbl_humidity.grid(row=6, column=1, sticky=W)
-        lbl_pressure.grid(row=7, column=1, sticky=W)
+
+        self.lbl_temperature.grid(row=6, column=0, sticky=W)
+        self.lbl_humidity.grid(row=6, column=1, sticky=W)
+        self.lbl_pressure.grid(row=6, column=2, sticky=W)
         lbl_remote_z.grid(row=8, column=0, sticky=W)
         btn_exit.grid(row=8, column=1, sticky=E)
 
@@ -124,7 +128,7 @@ class GoPiGoGUI:
 
 #--------------------------------- READ ENVIRONMENT -------------------------------------#
     def read_environment(self):
-        """ Increase the speed of the GoPiGo """
+        """ Read the bme280 sensor """
         # Read temperature
         # temp = my_thp.safe_celsius()
         self.temperature = self.my_thp.safe_fahrenheit()
@@ -137,6 +141,25 @@ class GoPiGoGUI:
 
         # Convert pascals to inHg, compensate for 4000' altitude
         self.pressure = (press / 3386.38867) + 4.08
+
+        self.voltage = round(self.gpg.volt(), 1)
+
+
+#--------------------------------- INCREASE SPEED -------------------------------------#
+
+    def refresh_readings(self):
+        """ Call the fead the bme280 sensor method """
+        self.read_environment()
+        # Display new readings
+        self.lbl_voltage.config(text="Voltage: " + str(self.voltage) + "V")
+        self.lbl_temperature.config(text="Temp: " + str(round(
+            self.temperature, 2)) + "°F", bg=self.BG)
+        self.lbl_humidity.config(text="Humidity: " + str(round(
+            self.humidity, 1)) + "%", bg=self.BG)
+        self.lbl_pressure.config(text="Press: " + str(round(
+            self.pressure, 2)) + " inHg", bg=self.BG)
+
+        self.window.after(15000, self.refresh_readings)
 
 #--------------------------------- INCREASE SPEED -------------------------------------#
     def increase_speed(self):
@@ -161,11 +184,6 @@ class GoPiGoGUI:
         self.gpg.set_speed(speed)       # Set the new speed
         # Display current speed
         self.lbl_speed.config(text="Speed: " + str(speed))
-
-#----------------------------- GET BATTERY VOLTAGE ---------------------------------#
-    def get_battery_voltage(self):
-        voltage = round(self.gpg.volt(), 1)
-        self.lbl_voltage.config(text="Voltage: " + str(voltage) + "V")
 
 #----------------------------- EXIT PROGRAM ---------------------------------#
     def exit_program(self):
