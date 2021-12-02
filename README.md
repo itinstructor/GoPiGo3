@@ -6,7 +6,7 @@ GoPiGo3 Projects
 - rc_tkinter_bme280.py --> Tkinter remote control with bme280 sensor readings
 
 <p align="center">
-<img alt="WiFi Duck Logo" src="images/rc_tkinter_bme280.jpg" width="640">
+<img alt="rec GoPiGo remote control program" src="img/rc_tkinter_bme280.jpg" width="640">
 </p>
 
 
