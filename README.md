@@ -5,7 +5,11 @@ GoPiGo3 Projects
 ### Code
 - rc_tkinter_bme280.py --> Tkinter remote control with bme280 sensor readings
 
-![image of GoPiGo remote control]https://github.com/itinstructor/GoPiGo3/blob/main/Images/rc_tkinter_bme280.jpg
+<p align="center">
+<img alt="WiFi Duck Logo" src="images/rc_tkinter_bme280.jpg" width="640">
+</p>
+
+
 ### Purpose
 I am an Information Technology Instructor at Western Nebraska Community College. I teach Information Technology Technical Support, CyberSecurity and Computer Science.
 
