@@ -4,6 +4,7 @@ GoPiGo3 Projects
 - OfficeCannon --> The GoPiGo3 launches soft missiles with Dream Cheeky Thunder
 ### Code
 - rc_tkinter_bme280.py --> Tkinter remote control with bme280 sensor readings
+- https://github.com/itinstructor/GoPiGo3/blob/main/Images/rc_tkinter_bme280.jpg
 ### Purpose
 I am an Information Technology Instructor at Western Nebraska Community College. I teach Information Technology Technical Support, CyberSecurity and Computer Science.
 
