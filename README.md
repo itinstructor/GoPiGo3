@@ -1,10 +1,10 @@
-# GoPiGo3
-GoPiGo3 Projects
+# GoPiGo3 & Raspbery Pi
+GoPiGo3 and Raspberry PiProjects
 ## Projects
 - OfficeCannon --> The GoPiGo3 launches soft missiles with Dream Cheeky Thunder
 ## Video Streaming
 Video streaming using OpenCV for Python
-## Code
+## GoPiGo3 Code
 - bme280_test.py
 - bme280_thingspeak.py
 - bme280_tkinter.py
@@ -16,6 +16,7 @@ Video streaming using OpenCV for Python
 </p>
 
 ## Resources
+ - Raspberry Pi Getting Started Buster Tutorial
  - GoPiGo3 Getting Started Buster Tutorial
  - GoPiGo3 Cloud Data with ThingSpeak Tutorial --> Upload sensor data to [thingspeak.com](https://www.thingspeak.com)
    - Go to [billthecomputerguy.com/gopigo](https://www.billthecomputerguy.com/gopigo) for examples.
