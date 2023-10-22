@@ -17,6 +17,7 @@ Video streaming using OpenCV for Python
 
 ## Resources
  - Raspberry Pi Getting Started Buster Tutorial
+ - Raspberry Pi Sensors
  - GoPiGo3 Getting Started Buster Tutorial
  - GoPiGo3 Cloud Data with ThingSpeak Tutorial --> Upload sensor data to [thingspeak.com](https://www.thingspeak.com)
    - Go to [billthecomputerguy.com/gopigo](https://www.billthecomputerguy.com/gopigo) for examples.
