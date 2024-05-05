@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""
+    Name: distance_sensor_test.py
+    Purpose: Demonstrate reading the distance sensor in mm and inches
+"""
+# EasyGoPiGo3 documentation: https://gopigo3.readthedocs.io/en/latest
+# DI sensor documentation: https://di-sensors.readthedocs.io/en/master/
+# Copyright (c) 2017 Dexter Industries Released under the MIT license
+#
+# History
+# ------------------------------------------------
+# Author     Date      	    Comments
+# Loring     09/25/21       Convert to EasyGoPiGo3, test with Python 3.7
+#
+#
+#####################################################################
+# Connect Distance Sensor to an I2C port
+#####################################################################
+# Have a question about this example?  Ask on the forums here:
+# http://forum.dexterindustries.com/c/gopigo
+
+# Import the GoPiGo3 library
+import easygopigo3 as easy
+# Initialize an EasyGoPiGo3 object
+gpg = easy.EasyGoPiGo3()
+
+# Initialize an object of the Distance Sensor class.
+# I2C1 and I2C2 are just labels used for identifying the port on the GoPiGo3 board.
+# Technically, I2C1 and I2C2 are the same thing, so we don't have to pass any port to the constructor.
+my_distance_sensor = gpg.init_distance_sensor()
+
+try:
+    while True:
+        # Read the sensor data into millimeters and inches
+        mm = my_distance_sensor.read_mm()
+        inches = my_distance_sensor.read_inches()
+        feet = inches // 12
+        remaining_inches = inches % 12
+
+        # Print the values of the sensor to the console
+        print(f'Distance: {mm} mm  {inches:.0f}"', end="")
+        print(f"  {feet:.0f}' {remaining_inches:.0f}\"")
+
+except KeyboardInterrupt:
+    gpg.reset_all()
+    exit()
