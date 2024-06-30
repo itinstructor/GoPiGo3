@@ -19,19 +19,17 @@ Video streaming using OpenCV for Python
 - psutil_system_info.py
 - rc_tkinter_bme280.py --> Tkinter remote control with bme280 sensor readings
 
-<p>
-<img alt="rec GoPiGo remote control program" src="img/rc_tkinter_bme280.jpg" width="300">
-</p>
+![GoPiGo3 Remote Control](./img/rc_tkinter_bme280.jpg)
 
 ## Resources
 
- - Raspberry Pi Getting Started Buster Tutorial
- - Raspberry Pi Sensors
- - GoPiGo3 Getting Started Buster Tutorial
- - GoPiGo3 Cloud Data with ThingSpeak Tutorial --> Upload sensor data to [thingspeak.com](https://www.thingspeak.com)
-   - Go to [billthecomputerguy.com/gopigo](https://www.billthecomputerguy.com/gopigo) for examples.
- - GoPiGo3 Sensors Tutorial
- - GoPiGo Tutorials and Resources
+- Raspberry Pi Getting Started Buster Tutorial
+- Raspberry Pi Sensors
+- GoPiGo3 Getting Started Buster Tutorial
+- GoPiGo3 Cloud Data with ThingSpeak Tutorial --> Upload sensor data to [thingspeak.com](https://www.thingspeak.com)
+  - Go to [billthecomputerguy.com/gopigo](https://www.billthecomputerguy.com/gopigo) for example readings.
+- GoPiGo3 Sensors Tutorial
+- GoPiGo Tutorials
 
 ## Purpose
 
