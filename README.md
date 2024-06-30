@@ -31,6 +31,10 @@ Video streaming using OpenCV for Python
 - GoPiGo3 Sensors Tutorial
 - GoPiGo Tutorials
 
+## Credit
+
+- setup_gopigo3_on_32-bit_Bullseye.sh is from [slowrunner](https://github.com/slowrunner)
+
 ## Purpose
 
 I am an Information Technology Instructor at Western Nebraska Community College. I teach Information Technology Technical Support, CyberSecurity and Computer Science.
