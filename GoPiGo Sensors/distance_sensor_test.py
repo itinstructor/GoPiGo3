@@ -21,12 +21,15 @@
 
 # Import the GoPiGo3 library
 import easygopigo3 as easy
+
 # Initialize an EasyGoPiGo3 object
 gpg = easy.EasyGoPiGo3()
 
 # Initialize an object of the Distance Sensor class.
-# I2C1 and I2C2 are just labels used for identifying the port on the GoPiGo3 board.
-# Technically, I2C1 and I2C2 are the same thing, so we don't have to pass any port to the constructor.
+# I2C1 and I2C2 are just labels used for identifying the ports
+# on the GoPiGo3 board.
+# Technically, I2C1 and I2C2 are the same thing,
+# we don't have to pass a port to the constructor.
 my_distance_sensor = gpg.init_distance_sensor()
 
 try:
@@ -34,8 +37,15 @@ try:
         # Read the sensor data into millimeters and inches
         mm = my_distance_sensor.read_mm()
         inches = my_distance_sensor.read_inches()
+
+        # Calculate the number of feet by performing 
+        # integer division on inches by 12
         feet = inches // 12
+
+        # Calculate the remaining inches by finding the
+        # modulus of inches by 12
         remaining_inches = inches % 12
+
 
         # Print the values of the sensor to the console
         print(f'Distance: {mm} mm  {inches:.0f}"', end="")
