@@ -51,7 +51,12 @@ class VideoStar():
         self.root.protocol("WM_DELETE_WINDOW", self.quit)
 
         # Create VideoCapture object 0 = 1st camera
-        self.camera = cv2.VideoCapture(0, cv2.CAP_V4L2)
+        if os.name =="nt":
+            # Windows capture
+            self.camera = cv2.VideoCapture(0)
+        else:
+            # Raspberry Pi Bullseye capture
+            self.camera = cv2.VideoCapture(0, cv2.CAP_V4L2)
 
         # Start streaming flag to false
         self.is_streaming = False
@@ -67,7 +72,7 @@ class VideoStar():
         self.create_widgets()
         self.root.mainloop()
 
-# ----------------------- START STOP VIDEO STREAM -------------------------#
+# ----------------------- START STOP VIDEO STREAM ------------------------ #
     def start_stop_stream(self):
         """Stop or start the video stream"""
         if not self.is_streaming:
@@ -75,7 +80,7 @@ class VideoStar():
         else:
             self.stop_stream()
 
-# ------------------------ STOP VIDEO STREAM ------------------------------#
+# ------------------------ STOP VIDEO STREAM ----------------------------- #
     def stop_stream(self):
         """Stop video stream"""
         # self.streaming set to false stops the update_stream method
@@ -83,7 +88,7 @@ class VideoStar():
         self.btn_start_stop.configure(text="Start Stream")
         self.lbl_status_bar.configure(text=" Video Stream Stopped")
 
-# ----------------------- START VIDEO CAPTURE -----------------------------#
+# ----------------------- START VIDEO CAPTURE ---------------------------- #
     def start_stream(self):
         """Start video stream"""
         self.is_streaming = True
@@ -100,7 +105,7 @@ class VideoStar():
         # This will keep going until is_streaming is set to False
         self.update_stream()
 
-# ------------------------ UPDATE STREAM ----------------------------------#
+# ------------------------ UPDATE STREAM --------------------------------- #
     def update_stream(self):
         """Update the video stream by reading camera frames"""
         # Check if streaming is enabled
