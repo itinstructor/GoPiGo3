@@ -13,7 +13,7 @@
 from time import sleep        # Import the time library for the sleep function
 import easygopigo3 as easy    # Import the EasyGoPiGo3 library
 
-#------------------------ INITIALIZE GOPIGO -------------------------------------#
+# --------------------- INITIALIZE GOPIGO -------------------------------- #
 gpg = easy.EasyGoPiGo3()    # Initialize a EasyGoPiGo3 object
 gpg.set_speed(200)          # Set initial speed
 

@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
-
-# Based on
-# https://pythonprogramming.net/robotics-raspberry-pi-tutorial-gopigo-introduction
-#
-# This uses the EasyGoPiGo3 library
-# https://gopigo3.readthedocs.io/en/master/api-basic/easygopigo3.html
-#
+# Based on https://pythonprogramming.net/robotics-raspberry-pi-tutorial-gopigo-introduction
+# EasyGoPiGo3 documentation: https://gopigo3.readthedocs.io/en/latest
+# Purpose: GoPiGo3 Tkinter remote control program
+# ------------------------------------------------
 # History
 # ------------------------------------------------
 # Author     Date           Comments
-# Loring     09/12/21       Convert to EasyGoPiGo3, test with Python 3.5
-# Loring     10/16/21       Add obstacle avoidance using after
+# Loring     09/12/21       Convert to EasyGoPiGo3, OOP, test with Python 3.5
+# Loring     10/23/21       Add battery voltage display
 
-# ---------------------------- IMPORTS ----------------------------------- #
 from tkinter import *       # Import tkinter for GUI
+from tkinter.ttk import *   # Add ttk themed widgets
 import sys                  # Used to exit the program
 import easygopigo3 as easy  # Import EasyGoPiGo3 library
 
@@ -21,74 +18,45 @@ import easygopigo3 as easy  # Import EasyGoPiGo3 library
 class GoPiGoGUI:
     def __init__(self):
         """ Initialize the program """
-        self.DETECTION_DISTANCE = 12   # Detection distance in inches
-        self.gpg = easy.EasyGoPiGo3()  # Initialize an EasyGoPiGo3 object
-        self.gpg.set_speed(200)        # Set initial speed
+        # self.BG = "white"
+        # Create EasyGoPiGo3 object
+        self.gpg = easy.EasyGoPiGo3()
 
-        # Initialize a distance sensor object
-        self.distance_sensor = self.gpg.init_distance_sensor()
+        # Set initial speed
+        self.gpg.set_speed(200)
 
-        # Initialize a servo object on Servo Port 2
-        self.servo = self.gpg.init_servo("SERVO2")
-        # Set servo pointing stright ahead
-        self.servo.rotate_servo(90)
-
-        self.window = Tk()  # Initialize a tkinter window object
+        self.window = Tk()
         self.window.title("GoPiGo Remote Control")
+
         # Set the window size and location
-        # 320x200 pixels in size, location at 100x100
-        self.window.geometry("350x200+100+100")
+        # 350x250 pixels in size, location at 50x50
+        self.window.geometry("375x275+50+50")
+        # Color and padding to edge of window
+        self.window.config(padx=10, pady=10)
+        # self.window.config(bg=self.BG)
+
+        self.window.protocol("WM_DELETE_WINDOW", self.exit_program)
 
         # Bind all key input events to the window
         # This will capture all keystrokes for remote control of robot
         self.window.bind_all('<Key>', self.key_input)
 
-        self.create_widgets()       # Create and layout widgets
+        self.create_widgets()
+        self.window.mainloop()
 
-        # after runs a function so many milliseconds after the mainloop starts
-        # this callback function runs when the mainloop isn't busy
-        # after is a non blocking call, it does not interrupt or stall execution
-        self.window.after(1000, self.obstacle_detection)
-
-        self.window.mainloop()      # Start the mainloop of the tkinter program
-
-# -------------------------- OBSTACLE DETECTION -------------------------- #
-    def obstacle_detection(self):
-        """Obstacle detection routine, called every 100 ms from after"""
-        # Find the distance of the object in front
-        dist = self.distance_sensor.read_inches()
-        # Print feedback to the console for testing
-        # print("Dist:", dist, 'inches')
-        # If the object is closer than detection distance,
-        # call the obstacle avoidance function
-        if dist < self.DETECTION_DISTANCE:
-            self.obstacle_avoidance()
-
-        # A recursive call every 100 ms to read the sensor and decide what to do
-        # after is a non blocking call, it runs the callback function when the main thread isn't busy
-        self.window.after(1000, self.obstacle_detection)
-
-# ------------------------ OBSTACLE AVOIDANCE ---------------------------- #
-    def obstacle_avoidance(self):
-        """Obstacle avoidance routine"""
-        # Place any obstacle avoidance code here
-        # This code is a proof of concept and a placeholder for your code
-        # print("Stopping")    # Print feedback to the console
-        self.gpg.turn_degrees(-90)
-        self.gpg.forward()
-
-# -------------------------- CREATE WIDGETS ------------------------------ #
+# -------------------------- CREATE WIDGETS -------------------------------#
     def create_widgets(self):
         """ Create and layout widgets """
         # Reference for GUI display
         """
         W = Forward      Q = Spin Left
         S = Backward     E = Spin Right
-        A = Left         
-        D = Right        Spacebar = Stop
-        T = Increase Speed
-        G = Decrease Speed
-        Speed: 300
+        A = Left         T = Increase Speed
+        D = Right        G = Decrease Speed  
+        Spacebar = Stop
+        Temp
+        Speed: 200      Voltage 
+        Z = Exit    Exit button
         """
         # Create widgets
         lbl_remote_w = Label(text="W: Forward")
@@ -96,11 +64,20 @@ class GoPiGoGUI:
         lbl_remote_s = Label(text="S: Backward")
         lbl_remote_e = Label(text="E: Spin Right")
         lbl_remote_a = Label(text="A: Left")
-        lbl_remote_spacebar = Label(text="Spacebar: Stop")
         lbl_remote_d = Label(text="D: Right")
         lbl_remote_t = Label(text="T: Increase Speed")
         lbl_remote_g = Label(text="G: Decrease Speed")
+        lbl_remote_spacebar = Label(text="Spacebar: Stop")
         lbl_remote_z = Label(text="Z: Exit")
+
+        # Get and display battery voltage
+        btn_voltage = Button(text="Voltage", command=self.get_battery_voltage)
+        # Round the voltage to 1 decimal place
+        voltage = round(self.gpg.volt(), 1)
+        self.lbl_voltage = Label(
+            text="Voltage: " + str(voltage) + "V")
+
+        btn_exit = Button(text="Exit", command=self.exit_program)
 
         # Get and display current GoPiGo speed setting
         speed = self.gpg.get_speed()
@@ -112,20 +89,23 @@ class GoPiGoGUI:
         lbl_remote_s.grid(row=1, column=0, sticky=W)
         lbl_remote_e.grid(row=1, column=1, sticky=W)
         lbl_remote_a.grid(row=2, column=0, sticky=W)
-        lbl_remote_spacebar.grid(row=2, column=1, sticky=W)
+        lbl_remote_t.grid(row=2, column=1, sticky=W)
         lbl_remote_d.grid(row=3, column=0, sticky=W)
-        lbl_remote_t.grid(row=4, column=0, sticky=W)
-        lbl_remote_g.grid(row=5, column=0, sticky=W)
-        self.lbl_speed.grid(row=6, column=0, sticky=W)
-        lbl_remote_z.grid(row=6, column=1, sticky=W)
+        lbl_remote_g.grid(row=3, column=1, sticky=W)
+        lbl_remote_spacebar.grid(row=4, column=0, sticky=W)
+        self.lbl_speed.grid(row=5, column=0, sticky=W)
+        btn_voltage.grid(row=5, column=1, sticky=E)
+        self.lbl_voltage.grid(row=5, column=2, sticky=W)
+        lbl_remote_z.grid(row=6, column=0, sticky=W)
+        btn_exit.grid(row=6, column=1, sticky=E)
 
         # Set padding for all widgets
         for child in self.window.winfo_children():
-            child.grid_configure(padx=4, pady=4)
+            child.grid_configure(padx=5, pady=5)
 
-# ------------------------ INCREASE SPEED -------------------------------- #
+# ------------------------- INCREASE SPEED --------------------------------#
     def increase_speed(self):
-        """Increase the speed of the GoPiGo"""
+        """ Increase the speed of the GoPiGo """
         speed = self.gpg.get_speed()    # Get the current speed
         speed = speed + 100             # Add 100 to the current speed
         # Keep speed from going beyond 1000
@@ -135,21 +115,30 @@ class GoPiGoGUI:
         # Display current speed
         self.lbl_speed.config(text="Speed: " + str(speed))
 
-# ------------------------ DECREASE SPEED -------------------------------- #
+# ------------------------ DECREASE SPEED ---------------------------------#
     def decrease_speed(self):
-        """Decrease the speed of the GoPiGo"""
+        """ Decrease the speed of the GoPiGo """
         speed = self.gpg.get_speed()    # Get current speed
         speed = speed - 100             # Subtract 100 from the current speed
         # Keep speed from going below 0
-        if (speed < 0):
-            speed = 0
+        if (speed < 100):
+            speed = 100
         self.gpg.set_speed(speed)       # Set the new speed
         # Display current speed
         self.lbl_speed.config(text="Speed: " + str(speed))
 
-# --------------------------- KEY INPUT ---------------------------------- #
+# ----------------------- GET BATTERY VOLTAGE -----------------------------#
+    def get_battery_voltage(self):
+        voltage = round(self.gpg.volt(), 1)
+        self.lbl_voltage.config(text="Voltage: " + str(voltage) + "V")
+
+# ----------------------------- EXIT PROGRAM ------------------------------#
+    def exit_program(self):
+        print("\nExiting")
+        sys.exit()
+
+# --------------------------- KEY INPUT -----------------------------------#
     def key_input(self, event):
-        """Capture all keystroke events"""
         # Get all key preseses as lower case
         key_press = event.keysym.lower()
         # print(key_press)  # For testing
@@ -202,9 +191,8 @@ class GoPiGoGUI:
 
         # Exit program
         elif key_press == 'z':
-            print("\nExiting")
-            sys.exit()
+            self.exit_program()
 
 
-# Create tkinter remote control object
+# Create remote control object
 gopigo_gui = GoPiGoGUI()

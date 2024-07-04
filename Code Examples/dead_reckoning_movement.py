@@ -66,7 +66,4 @@ def main():
     print("Done!")
 
 
-# If a standalone program, call the main function
-# Else, use as a module
-if __name__ == '__main__':
-    main()
+main()

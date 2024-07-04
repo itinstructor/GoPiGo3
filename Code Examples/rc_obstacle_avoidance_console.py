@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#############################################################################################################
+############################################################################
 # Example for controlling the GoPiGo using the Keyboard and obstacle avoidance
 # Controls:
 #   w:  Move forward
@@ -16,10 +16,10 @@
 #
 # EasyGoPiGo3 documentation
 # https://gopigo3.readthedocs.io/en/latest
-##############################################################################################################
+############################################################################
 
 
-#---------------------------------------- IMPORTS -------------------------------------------#
+# --------------------------- IMPORTS ------------------------------------- #
 import sys                              # For sys.exit
 import time                             # Import the time library for the sleep function
 # Threading module to run obstacle avoidance and remote control at the same time
@@ -27,7 +27,7 @@ import threading
 import easygopigo3 as easy              # Import the EasyGoPiGo3 library
 
 
-#--------------------------------- INITIALIZE THE GOPIGO -------------------------------------#
+# ----------------------- INITIALIZE THE GOPIGO --------------------------- #
 gpg = easy.EasyGoPiGo3()                      # Initialize an EasyGoPiGo3 object
 distance_sensor = gpg.init_distance_sensor()  # Initialize distance sensor object
 servo = gpg.init_servo("SERVO1")              # Initialize servo object Port 1
@@ -43,12 +43,15 @@ gpg.set_speed(200)       # Set initial speed
 DETECTION_DISTANCE = 12  # Distance in inches
 
 
-#--------------------------------- MAIN PROGRAM LOOP -------------------------------------#
+# ----------------------- MAIN PROGRAM LOOP ------------------------------ #
 def main():
     display_menu()
     # Create and start daemon thread for the obstacle_avoidance function
     # A daemon thread will terminate when the program terminates
-    obs = threading.Thread(target=obstacle_detection, daemon=True)
+    obs = threading.Thread(
+        target=obstacle_detection,
+        daemon=True
+    )
     obs.start()
 
     # Main program loop
@@ -59,11 +62,9 @@ def main():
         time.sleep(.05)
 
 
-#--------------------------------- REMOTE CONTROL CONSOLE -------------------------------------#
+# ----------------------- REMOTE CONTROL CONSOLE ------------------------- #
 def remote_control_console():
-    """
-        Remote control the GoPiGo from the console
-    """
+    """Remote control the GoPiGo from the console"""
     # Fetch the input from the terminal
     key_press = input("Enter the Command: ")
 
@@ -95,13 +96,12 @@ def remote_control_console():
         print("Unknown Command, Please Enter Again")
 
 
-#--------------------------------- OBSTACLE DETECTION -------------------------------------#
+# --------------------- OBSTACLE DETECTION ------------------------------- #
 def obstacle_detection():
-    """
-        Obstacle detection routine, called every 500 ms
-    """
+    """Obstacle detection routine, called every 500 ms"""
     while True:
-        dist = distance_sensor.read_inches()  # Find the distance of the object in front
+        # Find the distance of the object in inches
+        dist = distance_sensor.read_inches()
         # print("Dist:", dist, 'inches')        # Print feedback to the console for testing
 
         # If the object is closer than avoidance distance,
@@ -109,21 +109,19 @@ def obstacle_detection():
         if dist < DETECTION_DISTANCE:
             obstacle_avoidance()
 
-        time.sleep(.5)
+        time.sleep(0.5)
 
 
-#--------------------------------- OBSTACLE AVOIDANCE -------------------------------------#
+# -------------------------- OBSTACLE AVOIDANCE -------------------------- #
 def obstacle_avoidance():
-    """
-        Obstacle avoidance routine
-    """
+    """Obstacle avoidance routine"""
     # Place any obstacle avoidance code here
     # This code is a proof of concept and a placeholder for your code
     print("Stopping")    # Print feedback to the console
     gpg.stop()           # Stop the GoPiGo
 
 
-#--------------------------------- DISPLAY MENU -------------------------------------#
+# -------------------------- DISPLAY MENU -------------------------------- #
 def display_menu():
     # os.system('cls' if os.name == 'nt' else 'clear')
     print("Console GoPiGo Robot control")

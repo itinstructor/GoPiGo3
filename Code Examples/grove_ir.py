@@ -19,11 +19,11 @@
 # a value will be printed that corresponds
 # to the button being pressed on the remote
 
-#--------------------------------- IMPORTS -------------------------------------#
+# -------------------------- IMPORTS ------------------------------------- #
 from time import sleep      # From the time library import sleep function
 import easygopigo3 as easy  # Import the EasyGoPiGo3 library
 
-#------------------------- INITIALIZE GOPIGO -------------------------------------#
+# ----------------------- INITIALIZE GOPIGO ------------------------------ #
 gpg = easy.EasyGoPiGo3()    # Initialize a EasyGoPiGo3 object
 
 
@@ -35,7 +35,7 @@ def main():
             gpg.GROVE_TYPE.IR_DI_REMOTE
         )
 
-        while(True):
+        while (True):
             try:
                 # Get and print value from IR Remote
                 print(gpg.get_grove_value(gpg.GROVE_1))
@@ -52,7 +52,4 @@ def main():
         gpg.reset_all()
 
 
-# If a standalone program, call the main function
-# Else, use as a module
-if __name__ == '__main__':
-    main()
+main()

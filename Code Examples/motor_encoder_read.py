@@ -5,7 +5,7 @@
 #
 # Copyright (c) 2017 Dexter Industries
 # Released under the MIT license (http://choosealicense.com/licenses/mit/).
-# This code is an example for controlling the GoPiGo3 motors. 
+# This code is an example for controlling the GoPiGo3 motors.
 # This uses the EasyGoPiGo3 library.  You can find more information on the library
 # here:  https://gopigo3.readthedocs.io/en/master/api-basic/easygopigo3.html#easygopigo3
 #

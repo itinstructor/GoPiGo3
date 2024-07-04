@@ -31,14 +31,14 @@ class TextToAudio:
         # Run engine to set properties
         self.engine.runAndWait()
 
-#------------------------------ GREET USER ------------------------------------#
+# -------------------------- GREET USER ---------------------------------- #
     def greet_user(self):
         self.engine.say("Hello, I am Zira.")
         self.engine.say("What would you like me to say? Press CTRL C to exit")
         print("Talking . . .")
         self.engine.runAndWait()
 
-#----------------------- MAIN PROGRAM LOOP ------------------------------------#
+# -------------------- MAIN PROGRAM LOOP --------------------------------- #
     def main_program(self):
         # Repeating loop, CTRL-C to exit
         while True:
@@ -47,7 +47,7 @@ class TextToAudio:
             except KeyboardInterrupt:
                 self.quit_program()
 
-#---------------------------- QUIT PROGRAM ------------------------------------#
+# ---------------------------- QUIT PROGRAM ------------------------------ #
     def quit_program(self):
         # Quit program
         print("\nHave a good day!")
@@ -57,7 +57,7 @@ class TextToAudio:
         sleep(2)
         exit(0)
 
-#--------------------- SPEAK --------------------------------------------------#
+# --------------------- SPEAK -------------------------------------------- #
     def speak(self):
         # Get text from command line
         spoken_text = input("((<< ")
@@ -67,7 +67,7 @@ class TextToAudio:
         self.engine.runAndWait()
 
 
-#------------- MAIN PROGRAM ---------------------------------------------------#
+# ------------- MAIN PROGRAM --------------------------------------------- #
 # Create program object to run program
 text_to_audio = TextToAudio()
 text_to_audio.greet_user()

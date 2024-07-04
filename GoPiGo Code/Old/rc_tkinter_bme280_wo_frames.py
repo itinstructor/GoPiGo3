@@ -1,127 +1,165 @@
 #!/usr/bin/env python3
-# Based on https://pythonprogramming.net/robotics-raspberry-pi-tutorial-gopigo-introduction
+# Based on
+# https://pythonprogramming.net/robotics-raspberry-pi-tutorial-gopigo-introduction
 # EasyGoPiGo3 documentation: https://gopigo3.readthedocs.io/en/latest
 # Purpose: GoPiGo3 Tkinter remote control program
+# with Dexter Temperature, Humidity and Pressure sensor
 # ------------------------------------------------
 # History
 # ------------------------------------------------
 # Author     Date           Comments
 # Loring     09/12/21       Convert to EasyGoPiGo3, OOP, test with Python 3.5
 # Loring     10/23/21       Add battery voltage display
-# Loring     11/23/21       Add ttk themed widgets and frames
+# Loring     11/11/21       Add BME280 sensor display
 
 from tkinter import *       # Import tkinter for GUI
-from tkinter.ttk import *   # Add ttk themed widgets
 import sys                  # Used to exit the program
 import easygopigo3 as easy  # Import EasyGoPiGo3 library
+from di_sensors.easy_temp_hum_press import EasyTHPSensor
 
 
 class GoPiGoGUI:
     def __init__(self):
         """ Initialize the program """
+        self.BG = "white"
         # Create EasyGoPiGo3 object
         self.gpg = easy.EasyGoPiGo3()
         self.gpg.set_speed(200)  # Set initial speed
+        # Initialize an EasyTHPSensor object
+        self.my_thp = EasyTHPSensor()
 
         self.window = Tk()
         self.window.title("GoPiGo Remote Control")
         # Set the window size and location
         # 350x250 pixels in size, location at 50x50
-        self.window.geometry("375x320+50+50")
+        self.window.geometry("400x325+50+50")
+        # The window can't be resized
+        self.window.resizable(0, 0)
+        # Color and padding to edge of window
+        self.window.config(padx=10, pady=10)
+        self.window.config(bg=self.BG)
         # Bind all key input events to the window
         # This will capture all keystrokes for remote control of robot
         self.window.bind_all('<Key>', self.key_input)
-        # Create and layout widgets
-        self.create_widgets()
-        mainloop()      # Start the mainloop of the tkinter program
+
+        # Read the sensor the first time
+        self.read_environment()
+
+        self.create_widgets()       # Create and layout widgets
+
+        # Every 15 seconds (15000 ms), read the BME280 sensor
+        # after runs a function so many milliseconds after the mainloop starts
+        # this callback function runs when the mainloop isn't busy
+        # after is a non blocking call, it does not interrupt or stall execution
+        self.window.after(15000, self.refresh_readings)
+
+        self.window.mainloop()      # Start the mainloop of the tkinter program
 
 #--------------------------------- CREATE WIDGETS -------------------------------------#
     def create_widgets(self):
         """ Create and layout widgets """
         # Reference for GUI display
         """
-            W = Forward      Q = Spin Left
-            S = Backward     E = Spin Right
-            A = Left         T = Increase Speed
-            D = Right        G = Decrease Speed  
-            Spacebar = Stop
-            Speed: 200      Voltage 
-            Z = Exit    Exit button
+        W = Forward      Q = Spin Left
+        S = Backward     E = Spin Right
+        A = Left         T = Increase Speed
+        D = Right        G = Decrease Speed  
+        Spacebar = Stop
+        Speed: 200      Voltage 
+        Temp          Humidty     Pressure
+        Z = Exit    Exit button
+        
         """
-        # Create frames
-        # Create main label frame to hold remote control widgets
-        self.main_frame = LabelFrame(
-            self.window,
-            text="Remote Control",
-            relief=GROOVE)
-        # Create main frame to hold widgets
-        self.bottom_frame = LabelFrame(
-            self.window,
-            relief=GROOVE)
-
-        # Fill the frame to the width of the window
-        self.main_frame.pack(fill=X, padx=10, pady=(10, 0))
-        self.bottom_frame.pack(fill=X, padx=10, pady=10)
-        # Keep the frame size regardless of the widget sizes
-        self.main_frame.pack_propagate(False)
-        self.bottom_frame.pack_propagate(False)
-
-        # Create widgets and attach them to the correct frame
-        lbl_remote_w = Label(self.main_frame, text="W: Forward")
-        lbl_remote_q = Label(self.main_frame, text="Q: Spin Left")
-        lbl_remote_s = Label(self.main_frame, text="S: Backward")
-        lbl_remote_e = Label(self.main_frame, text="E: Spin Right")
-        lbl_remote_a = Label(self.main_frame, text="A: Left")
-        lbl_remote_d = Label(self.main_frame, text="D: Right")
-        lbl_remote_t = Label(self.main_frame, text="T: Increase Speed")
-        lbl_remote_g = Label(self.main_frame, text="G: Decrease Speed")
-        lbl_remote_spacebar = Label(self.main_frame, text="Spacebar: Stop")
-        lbl_remote_z = Label(self.bottom_frame, text="Z: Exit")
-
-        # Get and display battery voltage
-        btn_voltage = Button(
-            self.bottom_frame,
-            text="Voltage",
-            command=self.get_battery_voltage)
-
-        # Round the voltage to 1 decimal place
-        voltage = round(self.gpg.volt(), 1)
-        self.lbl_voltage = Label(
-            self.bottom_frame,
-            text="Voltage: " + str(voltage) + "V")
-
-        btn_exit = Button(
-            self.bottom_frame,
-            text="Exit",
-            command=self.exit_program)
+        # Create widgets
+        lbl_remote_w = Label(text="W: Forward", bg=self.BG)
+        lbl_remote_q = Label(text="Q: Spin Left", bg=self.BG)
+        lbl_remote_s = Label(text="S: Backward", bg=self.BG)
+        lbl_remote_e = Label(text="E: Spin Right", bg=self.BG)
+        lbl_remote_a = Label(text="A: Left", bg=self.BG)
+        lbl_remote_d = Label(text="D: Right", bg=self.BG)
+        lbl_remote_t = Label(text="T: Increase Speed", bg=self.BG)
+        lbl_remote_g = Label(text="G: Decrease Speed", bg=self.BG)
+        lbl_remote_spacebar = Label(text="Spacebar: Stop", bg=self.BG)
+        lbl_remote_z = Label(text="Z: Exit", bg=self.BG)
 
         # Get and display current GoPiGo speed setting
         speed = self.gpg.get_speed()
-        self.lbl_speed = Label(self.bottom_frame, text="Speed: " + str(speed))
+        self.lbl_speed = Label(text="Speed: " + str(speed), bg=self.BG)
+
+        self.lbl_voltage = Label(
+            text="Voltage: " + str(self.voltage) + "V", bg=self.BG)
+
+        self.lbl_temperature = Label(text="Temp: " + str(round(
+            self.temperature, 2)) + "°F", bg=self.BG)
+        self.lbl_humidity = Label(text="Humidity: " + str(round(
+            self.humidity, 1)) + "%", bg=self.BG)
+        self.lbl_pressure = Label(text="Press: " + str(round(
+            self.pressure, 2)) + " inHg", bg=self.BG)
+
+        btn_exit = Button(text="Exit", command=self.exit_program)
 
         # Grid the widgets
         lbl_remote_w.grid(row=0, column=0, sticky=W)
         lbl_remote_q.grid(row=0, column=1, sticky=W)
+
         lbl_remote_s.grid(row=1, column=0, sticky=W)
         lbl_remote_e.grid(row=1, column=1, sticky=W)
+
         lbl_remote_a.grid(row=2, column=0, sticky=W)
         lbl_remote_t.grid(row=2, column=1, sticky=W)
+
         lbl_remote_d.grid(row=3, column=0, sticky=W)
         lbl_remote_g.grid(row=3, column=1, sticky=W)
+
         lbl_remote_spacebar.grid(row=4, column=0, sticky=W)
 
-        self.lbl_speed.grid(row=0, column=0, sticky=W)
-        btn_voltage.grid(row=0, column=1, sticky=E)
-        self.lbl_voltage.grid(row=0, column=2, sticky=W)
-        lbl_remote_z.grid(row=1, column=0, sticky=W)
-        btn_exit.grid(row=1, column=1, sticky=E)
+        self.lbl_speed.grid(row=5, column=0, sticky=W)
+        self.lbl_voltage.grid(row=5, column=1, sticky=W)
 
-        # Set padding for all widgets in frames
-        pad = 6
-        for child in self.main_frame.winfo_children():
-            child.grid_configure(padx=pad, pady=pad)
-        for child in self.bottom_frame.winfo_children():
-            child.grid_configure(padx=pad, pady=pad)
+        self.lbl_temperature.grid(row=6, column=0, sticky=W)
+        self.lbl_humidity.grid(row=6, column=1, sticky=W)
+        self.lbl_pressure.grid(row=6, column=2, sticky=W)
+        lbl_remote_z.grid(row=8, column=0, sticky=W)
+        btn_exit.grid(row=8, column=1, sticky=E)
+
+        # Set padding for all widgets
+        for child in self.window.winfo_children():
+            child.grid_configure(padx=5, pady=5)
+
+#--------------------------------- READ ENVIRONMENT -------------------------------------#
+    def read_environment(self):
+        """ Read the bme280 sensor """
+        # Read temperature
+        # temp = my_thp.safe_celsius()
+        self.temperature = self.my_thp.safe_fahrenheit()
+
+        # Read relative humidity
+        self.humidity = self.my_thp.safe_humidity()
+
+        # Read pressure in pascals
+        press = self.my_thp.safe_pressure()
+
+        # Convert pascals to inHg, compensate for 4000' altitude
+        self.pressure = (press / 3386.38867) + 4.08
+
+        self.voltage = round(self.gpg.volt(), 1)
+
+
+#--------------------------------- INCREASE SPEED -------------------------------------#
+
+    def refresh_readings(self):
+        """ Call the fead the bme280 sensor method """
+        self.read_environment()
+        # Display new readings
+        self.lbl_voltage.config(text="Voltage: " + str(self.voltage) + "V")
+        self.lbl_temperature.config(text="Temp: " + str(round(
+            self.temperature, 2)) + "°F", bg=self.BG)
+        self.lbl_humidity.config(text="Humidity: " + str(round(
+            self.humidity, 1)) + "%", bg=self.BG)
+        self.lbl_pressure.config(text="Press: " + str(round(
+            self.pressure, 2)) + " inHg", bg=self.BG)
+
+        self.window.after(15000, self.refresh_readings)
 
 #--------------------------------- INCREASE SPEED -------------------------------------#
     def increase_speed(self):
@@ -146,11 +184,6 @@ class GoPiGoGUI:
         self.gpg.set_speed(speed)       # Set the new speed
         # Display current speed
         self.lbl_speed.config(text="Speed: " + str(speed))
-
-#----------------------------- GET BATTERY VOLTAGE ---------------------------------#
-    def get_battery_voltage(self):
-        voltage = round(self.gpg.volt(), 1)
-        self.lbl_voltage.config(text="Voltage: " + str(voltage) + "V")
 
 #----------------------------- EXIT PROGRAM ---------------------------------#
     def exit_program(self):
