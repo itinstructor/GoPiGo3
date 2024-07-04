@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-    Name: video_star_2.py
+    Name: video_star.py
     Author: 
     Created: 08/01/23
     Purpose: Stream video to a Tkinter interface using opencv
@@ -10,7 +10,14 @@
 # sudo apt install libatlas-base-dev -y
 # sudo apt install libopenblas-dev -y
 # sudo pip3 install numpy -U
-# sudo pip3 install opencv-python==4.3.0.38 # 
+# sudo pip3 install opencv-python==4.3.0.38
+# Edit /boot/config.txt comment out auto_detect_camera=1,
+# add gpu_mem=128 and start_x=1
+
+# Raspberry Pi Bullseye
+# sudo pip3 install pillow -U
+# sudo pip3 install numpy==1.26.4
+# sudo apt install python3-opencv -y
 # Edit /boot/config.txt comment out auto_detect_camera=1,
 # add gpu_mem=128 and start_x=1
 
@@ -44,7 +51,7 @@ class VideoStar():
         self.root.protocol("WM_DELETE_WINDOW", self.quit)
 
         # Create VideoCapture object 0 = 1st camera
-        self.camera = cv2.VideoCapture(0)
+        self.camera = cv2.VideoCapture(0, cv2.CAP_V4L2)
 
         # Start streaming flag to false
         self.is_streaming = False
@@ -172,8 +179,10 @@ class VideoStar():
 
 # --------------------------- ROTATE IMAGE --------------------------------#
     def rotate_image(self):
-        """Rotate the incoming camera image"""
+        """Rotate the incoming camera image 90 degrees to the left"""
+        # Increase rotation by 90 degrees to the left
         self.rotation += 90
+        # If rotation is greater than 360, set to 0
         if self.rotation >= 360:
             self.rotation = 0
         self.save_settings()
@@ -183,7 +192,7 @@ class VideoStar():
         """Save program settings for RotationAngle"""
         # Create a ConfigParser object to handle configuration file
         config = configparser.ConfigParser()
-        
+
         # Define the 'Settings' section
         # set 'RotationAngle' key with the value as a string
         config["Settings"] = {"RotationAngle": str(self.rotation)}
@@ -208,14 +217,14 @@ class VideoStar():
             if "Settings" in config:
                 # Get the 'RotationAngle' value from the 'Settings' section
                 rotation_angle = config['Settings'].get("RotationAngle", "0")
-                
+
                 # Convert the obtained value to an integer
                 # and assign it to self.rotation_angle
                 self.rotation = int(rotation_angle)
 
 # --------------------------- DISPLAY FPS ---------------------------------#
     def display_fps(self):
-        """Get and display FPS"""
+        """Get and display FPS as int"""
         # Get frames per second from cam capture properties
         # self.fps = self.camera.get(cv2.CAP_PROP_FPS)
 
@@ -225,10 +234,10 @@ class VideoStar():
         # Ensure elapsed time is greater than 0 to avoid division by zero
         if elapsed_time > 0:
             # Calculate frames per second (FPS)
-            fps = self.frame_count / elapsed_time
+            fps = int(self.frame_count / elapsed_time)
 
             # Create a message string to display the FPS with 2 decimal places
-            message = f"FPS: {fps:.2f}"
+            message = f"FPS: {fps:0d}"
 
             # Update the status bar label with the FPS message
             self.lbl_status_bar.configure(text=message)
@@ -300,7 +309,7 @@ class VideoStar():
 
 # --------------------------- QUIT PROGRAM --------------------------------#
     def quit(self, *args):
-        """Close clean up cv2 cameraresources, close the program"""
+        """Close clean up cv2 camera resources, close the program"""
         try:
             # If cam is in use, release it
             if self.camera.isOpened():
