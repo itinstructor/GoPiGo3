@@ -17,6 +17,7 @@ import tkinter.ttk as ttk
 # Import EasyGoPiGo3 library
 import easygopigo3 as easy
 from di_sensors.easy_temp_hum_press import EasyTHPSensor
+
 # Set servo pointing straight ahead
 # You may have to change the degrees to adapt to your servo
 # All servos line up slightly differently
@@ -29,6 +30,7 @@ class GoPiGoGUI:
         self.gpg = easy.EasyGoPiGo3()
         # Set initial speed
         self.gpg.set_speed(200)
+
         # Create EasyTHPSensor object
         self.my_thp = EasyTHPSensor()
         # Create distance sensor object
@@ -58,7 +60,7 @@ class GoPiGoGUI:
         # Start the mainloop of the tkinter program
         self.window.mainloop()
 
-# -------------------------- READ ENVIRONMENT DATA ------------------------#
+# -------------------------- READ ENVIRONMENT DATA ----------------------- #
     def read_environment_data(self):
         """Read Bosch bme280 sensor, temp, humidity, pressure"""
         # Read temperature
@@ -79,25 +81,25 @@ class GoPiGoGUI:
         # Read GPG3 battery voltage
         self.voltage = round(self.gpg.volt(), 1)
 
-# ------------------- DISPLAY ENVIRONMENT DATA ----------------------------#
+# ------------------- DISPLAY ENVIRONMENT DATA --------------------------- #
     def display_environment_data(self):
         """Display environment data"""
         self.read_environment_data()
         # Display new readings
         self.lbl_voltage.config(text=f"Voltage: {self.voltage}V")
-        self.lbl_temp.config(text=f"Temp: {round(self.temp_fahrenheit, 2)}°F")
+        self.lbl_temp.config(text=f"Temp: {self.temp_fahrenheit:,.2f}°F")
         self.lbl_humidity.config(
-            text=f"Humidity: {round(self.humidity, 1)}%")
+            text=f"Humidity: {self.humidity:.1f}%")
         self.lbl_pressure.config(
-            text=f"Press: {round(self.press_inhg, 2)} inHg")
+            text=f"Press: {self.press_inhg:.2f} inHg")
 
         # Every 15 seconds (15000 ms), read the BME280 sensor
-        # after runs a function so many milliseconds after the mainloop starts
+        # 'after' runs a function so many milliseconds after the mainloop starts
         # this callback function runs when the mainloop isn't busy
-        # after is a non blocking call, it does not interrupt or stall execution
+        # 'after' is a non blocking call, it does not interrupt or stall execution
         self.window.after(15000, self.display_environment_data)
 
-# ------------------------- INCREASE SPEED --------------------------------#
+# ------------------------- INCREASE SPEED ------------------------------- #
     def increase_speed(self):
         """Increase speed of the GoPiGo"""
         # Get the current speed
@@ -105,14 +107,14 @@ class GoPiGoGUI:
         # Add 100 to the current speed
         speed = speed + 100
         # Keep speed from going beyond 1000
-        if (speed > 1000):
-            speed = 1000
+        if (speed > 600):
+            speed = 600
         # Set new speed
         self.gpg.set_speed(speed)
         # Display current speed
         self.lbl_speed.config(text=f"Speed: {speed}")
 
-# ------------------------- DECREASE SPEED --------------------------------#
+# ------------------------- DECREASE SPEED ------------------------------- #
     def decrease_speed(self):
         """Decrease speed of the GoPiGo"""
         # Get current speed
@@ -127,7 +129,7 @@ class GoPiGoGUI:
         # Display current speed
         self.lbl_speed.config(text=f"Speed: {speed}")
 
-# -------------------------- KEY INPUT ------------------------------------#
+# -------------------------- KEY INPUT ----------------------------------- #
     def remote_control(self, event):
         """Get keystrokes for remote control"""
         # Get all key presses as lower case
@@ -184,7 +186,7 @@ class GoPiGoGUI:
         elif key_press == "escape":
             self.quit()
 
-# ------------------------- CREATE FRAMES ---------------------------------#
+# ------------------------- CREATE FRAMES -------------------------------- #
     def create_frames(self):
         """Create and set frames to fill up window"""
         self.top_frame = ttk.LabelFrame(
@@ -204,7 +206,7 @@ class GoPiGoGUI:
         self.middle_frame.pack_propagate(False)
         self.bottom_frame.pack_propagate(False)
 
-# ------------------------- CREATE WIDGETS --------------------------------#
+# ------------------------- CREATE WIDGETS ------------------------------- #
     def create_widgets(self):
         """Create and layout widgets"""
         # Reference for GUI display
@@ -243,11 +245,11 @@ class GoPiGoGUI:
 
         # Display temp, humidity, and pressure
         self.lbl_temp = ttk.Label(
-            self.middle_frame, text=f"Temp: {round(self.temp_fahrenheit, 2)} °F")
+            self.middle_frame, text=f"Temp: {self.temp_fahrenheit:.2f} °F")
         self.lbl_humidity = ttk.Label(
-            self.middle_frame, text=f"Humidity: {round(self.humidity, 1)}%")
+            self.middle_frame, text=f"Humidity: {self.humidity:.1f}%")
         self.lbl_pressure = ttk.Label(
-            self.middle_frame, text=f"Press: {round(self.press_inhg, 2)} inHg")
+            self.middle_frame, text=f"Press: {self.press_inhg:.1f} inHg")
 
         btn_exit = ttk.Button(self.bottom_frame, text="Exit",
                               command=self.quit)
@@ -291,7 +293,7 @@ class GoPiGoGUI:
         # This will capture all keystrokes for remote control of robot
         self.window.bind_all('<Key>', self.remote_control)
 
-    # ------------------------- QUIT PROGRAM ------------------------------#
+    # ------------------------- QUIT PROGRAM ----------------------------- #
     def quit(self):
         """Deconfigure the sensors, disable the motors,
         restore the LED to the control of the GoPiGo3 firmware."""
