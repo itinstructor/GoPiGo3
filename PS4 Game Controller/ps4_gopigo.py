@@ -23,6 +23,23 @@ class MyController(Controller):
         # Call base class constructor to handle common initialization logic
         super().__init__(**kwargs)
 
+        # Set min and max values for joystick
+        self.min_joystick = 0
+        self.max_joystick = 32767
+        # Set min and max values for power
+        self.min_power = 0
+        self.max_power = 550
+
+        # Calculate the range of power and joystick values
+        self.range_power = self.max_power - self.min_power
+        self.range_joystick = self.max_joystick - self.min_joystick
+
+        # Power for turning
+        self.turn_speed = 200
+        # Left right spin() joystick max value of 32767
+        # set to higher level than 0 to smooth out turns
+        self.turn_threshold = 10000
+
         # Create EasyGoPiGo3 object
         self.gpg = easy.EasyGoPiGo3()
         # Set initial speed
@@ -30,61 +47,83 @@ class MyController(Controller):
 
 # --------------------- FORWARD JOYSTICK --------------------------------- #
     # Event handler for moving the left joystick down
-    def on_L3_down(self, value):
+    def on_L3_down(self, value: int) -> None:
+        """Set speed based on normalized value from joystick,
+        move backward
 
+        Args:
+            value (int): The normalized value from the joystick.
+        """
         self.speed = self.normalize_joystick_value(value)
         print(f"Down Speed: {self.speed}")
 
         self.gpg.set_speed(self.speed)
         self.gpg.backward()
 
-# --------------------- REVERSE JOYSTICK --------------------------------- #
+# ------------------------ REVERSE --------------------------------------- #
     # Event handler for moving the left joystick up
-    def on_L3_up(self, value):
+    def on_L3_up(self, value: int) -> None:
+        """Set speed based on normalized value from joystick,
+        move forward
 
+        Args:
+            value (int): The normalized value from the joystick.
+        """
         self.speed = self.normalize_joystick_value(value)
-        print(f"Up Speed: {self.speed}")
-
         self.gpg.set_speed(self.speed)
         self.gpg.forward()
 
-# --------------------- NORMALIZE JOYSTICK ------------------------------- #
-    def normalize_joystick_value(self, joystick_value):
-        # Maximum speed for motor 0 to 550
-        # The joystick value (value) ranges from -32767 to 32767
-        # Normalize this to a range from 0 to 550
-        min_joystick = 0
-        max_joystick = 32767
-        min_power = 0
-        max_power = 550
-
-        normalized_value = (
-            (
-                joystick_value - min_joystick
-            ) * (
-                max_power - min_power
-            )
-        ) / (
-            max_joystick - min_joystick
-        ) + min_power
-
-        return abs(int(normalized_value))
-
     def on_L3_x_at_rest(self):
+        """Stop GopiGo on joystick release"""
         self.gpg.stop()
 
     def on_L3_y_at_rest(self):
+        """Stop GopiGo on joystick release"""
         self.gpg.stop()
 
+# ---------------------- TURN LEFT --------------------------------------- #
     # Event handler for moving the left joystick left
-    def on_L3_left(self, value):
-        pass
+    def on_L3_left(self, value: int) -> None:
+        """If the positive value of the joystick is above the 
+        turn_threshold, turn."""
+        if abs(value) > self.turn_threshold:
+            self.gpg.set_speed(self.turn_speed)
+            self.gpg.spin_left()
 
+# ---------------------- TURN RIGHT -------------------------------------- #
     # Event handler for moving the left joystick right
-    def on_L3_right(self, value):
-        pass
+    def on_L3_right(self, value: int) -> None:
+        """If the positive value of the joystick is above the 
+        turn_threshold, turn."""
+        if abs(value) > self.turn_threshold:
+            self.gpg.spin_right()
+            self.gpg.set_speed(self.turn_speed)
 
-    # Define a callback function that executes when the X button is pressed
+# --------------------- NORMALIZE JOYSTICK ------------------------------- #
+    def normalize_joystick_value(self, joystick_value: int) -> int:
+        """
+        This function takes a joystick value (between -32767 and 32767)
+        and normalizes it to a motor power value (between 0 and 550).
+
+        Args:
+            joystick_value (int): The raw joystick value from the controller.
+
+        Returns:
+            int: The normalized motor power value (0 to 550).
+        """
+        # Perform a linear transformation to map the joystick value
+        # (-32767 to 32767) to the motor power range (0 to 550):
+        # Normalize the joystick value to the range of power output values
+        # Shift the joystick value to start from 0
+        # Xcale it to the power range and shift it to the minimum power value
+        normalized_value = (joystick_value - self.min_joystick) * \
+            self.range_power / self.range_joystick + self.min_power
+
+        # Ensure the normalized balue is a positive integer
+        return abs(int(normalized_value))
+
+# ----------------------- JOYSTICK BUTTONS ------------------------------- #
+     # Define a callback function that executes when the X button is pressed
     def on_x_press(self):
         print("Hello world! The X button has been pressed.")
         self.gpg.stop()
@@ -95,13 +134,18 @@ class MyController(Controller):
         self.gpg.stop()
 
 
-# Create an instance of the MyController class, specifying the
-# connection interface and disabling the use of ds4drv (if applicable)
+# Create an instance of the MyController class,
+# Specify the connection interface
+# Disable the use of ds4drv (if applicable)
 controller = MyController(
+    # Specify the device interface to connect to
     interface="/dev/input/js0",
     connecting_using_ds4drv=False
 )
 
-# Start listening for controller events with a timeout of 60 seconds
+# Start listening for joystick input from the controller
+# This will continuously read data from the joystick until timeout occurs
 # (the controller should be paired within this timeframe)
-controller.listen(timeout=60)
+# Argument: Timeout in seconds (optional, defaults to None) timeout=60
+controller.listen()
+
