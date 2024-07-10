@@ -134,18 +134,28 @@ class MyController(Controller):
         self.gpg.stop()
 
 
-# Create an instance of the MyController class,
-# Specify the connection interface
-# Disable the use of ds4drv (if applicable)
-controller = MyController(
-    # Specify the device interface to connect to
-    interface="/dev/input/js0",
-    connecting_using_ds4drv=False
-)
+def main():
+    # Create an instance of the MyController class,
+    # Specify the connection interface
+    # Disable the use of ds4drv (if applicable)
+    controller = MyController(
+        # Specify the device interface to connect to
+        interface="/dev/input/js0",
+        connecting_using_ds4drv=False
+    )
+    try:
+        # Start listening for joystick input from the controller
+        # This will continuously read data from the joystick until timeout occurs
+        # (the controller should be paired within this timeframe)
+        # Argument: Timeout in seconds (optional, defaults to None) timeout=60
+        controller.listen(timeout=60)
 
-# Start listening for joystick input from the controller
-# This will continuously read data from the joystick until timeout occurs
-# (the controller should be paired within this timeframe)
-# Argument: Timeout in seconds (optional, defaults to None) timeout=60
-controller.listen()
+    except KeyboardInterrupt:
+        # Handle keyboard interrupt (Ctrl+C)
+        # Perform cleanup operations before exiting
+        controller.gpg.reset_all()
+        print("\nExiting the program.")
 
+
+if __name__ == "__main__":
+    main()
