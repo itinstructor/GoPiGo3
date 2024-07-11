@@ -12,7 +12,7 @@ GoPiGo3 and Raspberry PiProjects
 
 ## GoPiGo3 Code
 
-- rc_gui_ps4_bme280.py --> Uses ps4_gopigo.py to run the joystick with gui and bme280
+- rc_gui_ps4_bme280.py --> Uses ps4_gopigo.py as a module to run the joystick with gui and bme280
 - ps4_gopigo.py --> Remote control with wireless PS4 game controller to Pi bluetooth
 - rc_tkinter_bme280.py --> Tkinter remote control with bme280 sensor readings
 - bme280_test.py
