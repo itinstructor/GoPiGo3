@@ -8,7 +8,8 @@ GoPiGo3 and Raspberry PiProjects
 
 ## Video Streaming
 
-- video_star.py --> Video streaming using OpenCV for Python
+- picam2_video_1.py --> Video streaming using Picama2 for Raspberry Pi Bullseye and Bookworm. Using the new libcamera2 camera stack.
+- video_star.py --> Video streaming using OpenCV for Python using legacy camera
 
 ## GoPiGo3 Code
 
