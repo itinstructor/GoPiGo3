@@ -27,11 +27,16 @@ class PiCameraApp:
         # Initialize the Picamera2 object
         self.picam2 = Picamera2()
 
-        # Create a preview configuration for the camera
-        self.config = self.picam2.create_preview_configuration()
-
-        # Configure the camera with the preview configuration
-        self.picam2.configure(self.config)
+        # ---------- CONFIGURE CAMERA SETTINGS --------------------------- #
+        # Set resolution to 640x480
+        self.picam2.preview_configuration.main.size = (
+            640, 480)
+        # Set the frame rate to 30 FPS
+        self.picam2.preview_configuration.controls.FrameRate = 30
+        # Align the requested size with a standard video mode
+        self.picam2.preview_configuration.align()
+        # Apply the configuration settings
+        self.picam2.configure("preview")
 
         # Start the camera
         self.picam2.start()
