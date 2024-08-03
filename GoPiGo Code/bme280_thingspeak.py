@@ -18,7 +18,7 @@ from easygopigo3 import EasyGoPiGo3
 # Import sensor library
 from di_sensors.easy_temp_hum_press import EasyTHPSensor
 
-# api key for updating ThingSpeak channel
+# API key for updating ThingSpeak channel
 TS_KEY = "Your API Key"
 
 # ThingSpeak data dictionary
@@ -33,15 +33,15 @@ my_thp = EasyTHPSensor()
 
 def main():
     while True:
-        # ======================================================================
+        # ==================================================================
         # field1: Read Temperature in Fahrenheit
         temp = my_thp.safe_fahrenheit()
 
-        # ======================================================================
+        # ==================================================================
         # field2: Read Relative Humidity in percent
         hum = my_thp.safe_humidity()
 
-        # ======================================================================
+        # ==================================================================
         # field3: Read barometric pressure in pascals
         press = my_thp.safe_pressure()
 
@@ -61,9 +61,7 @@ def main():
 
 #------------------------ SEND THINGSPEAK ------------------------------#
 def thingspeak_send(temp, hum, press):
-    """
-        Update the ThingSpeak channel using the requests library
-    """
+    """Update the ThingSpeak channel using the requests library"""
     print("Update Thingspeak Channel")
 
     # Each field number corresponds to a field in ThingSpeak

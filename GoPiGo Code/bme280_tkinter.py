@@ -35,33 +35,29 @@ class THP_Sensor:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         mainloop()
 
-#--------------------- READ SENSORS -----------------------------#
+# -------------------------- READ SENSORS -------------------------------- #
     def read_sensors(self):
-        """
-            Read sensors
-        """
+        """Read sensors and display data"""
+        # Read temperature in fahrenheit
         self.temperature = self.my_thp.safe_fahrenheit()
         # Read relative humidity
         self.humidity = self.my_thp.safe_humidity()
         # Read the pressure in pascals
         press = self.my_thp.safe_pressure()
-        # convert pascals to inHg, compensate for 4000' altitude
+        # Convert pascals to inHg, compensate for 4000' altitude
         self.pressure = (press/3386.33857) + 4.08
         self.display_sensors()
 
-#--------------------- DISPLAY SENSORS -----------------------------#
+# ------------------------- DISPLAY SENSORS ------------------------------ #
     def display_sensors(self):
-        """
-            Display sensor data
-        """
+        """Display sensor data"""
         self.lbl_temp.config(text=f"{self.temperature:.0f}°F")
         self.lbl_hum.config(text=f"{self.humidity:.0f}%")
         self.lbl_press.config(text=f"{self.pressure:.2f} inHg")
 
+# -------------------------- CREATE WIDGETS ------------------------------- #
     def create_widgets(self):
-        """
-            Create and grid widgets
-        """
+        """Create and grid widgets"""
         # Create a main label frame to hold widgets
         self.main_frame = LabelFrame(
             self.window,
@@ -109,6 +105,7 @@ class THP_Sensor:
         for widget in self.main_frame.winfo_children():
             widget.grid_configure(padx=4, pady=4)
 
+# --------------------------- ON CLOSING ----------------------------------#
     def on_closing(self):
         # Unconfigure the sensors, disable the motors,
         # and restore the LED to the control of the GoPiGo3 firmware

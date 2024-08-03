@@ -26,16 +26,21 @@ class MyController(Controller):
         # Set min and max values for joystick
         self.min_joystick = 0
         self.max_joystick = 32767
-        # Set min and max values for power
+        
+        # Set min and max values for motor power
         self.min_power = 0
         self.max_power = 550
 
         # Calculate the range of power and joystick values
+        # to normalize the joystick value to the power range
+        # Calculate the range of power values
         self.range_power = self.max_power - self.min_power
+        # Calculate the range of joystick values
         self.range_joystick = self.max_joystick - self.min_joystick
 
         # Power for turning
         self.turn_speed = 200
+        
         # Left right spin() joystick max value of 32767
         # set to higher level than 0 to smooth out turns
         self.turn_threshold = 10000
