@@ -1,12 +1,8 @@
-# GoPiGo3 & Raspbery Pi
+# GoPiGo3 & Raspberry Pi
 
 ![GoPiGo3](./img/GoPiGo3.jpg)
 
-GoPiGo3 and Raspberry PiProjects
-
-## Projects
-
-- OfficeCannon --> The GoPiGo3 launches soft missiles with Dream Cheeky Thunder
+My GoPiGo3.
 
 ## Video Streaming
 
@@ -36,6 +32,10 @@ GoPiGo3 and Raspberry PiProjects
 - GoPiGo Tutorials
 - Raspberry Pi Getting Started Buster Tutorial
 - Raspberry Pi Sensors
+
+## Projects
+
+- OfficeCannon --> The GoPiGo3 launches soft missiles with Dream Cheeky Thunder
 
 ## Credit
 
