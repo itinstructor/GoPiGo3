@@ -1,5 +1,7 @@
 # GoPiGo3 & Raspbery Pi
 
+![GoPiGo3](./img/GoPiGo3.jpg)
+
 GoPiGo3 and Raspberry PiProjects
 
 ## Projects
