@@ -37,7 +37,7 @@ class GoPiGoGUI:
         self.servo.rotate_servo(FORWARD)
 
         self.window = tk.Tk()
-        self.window.title("Remote Control")
+        self.window.title("GoPiGo3 Remote")
         # Set the window size and location
         # horizontal vertical pixels in size, location at 50x50
         self.window.geometry("+50+50")
@@ -194,7 +194,7 @@ class GoPiGoGUI:
             relief=tk.GROOVE)
         self.middle_frame = ttk.LabelFrame(
             self.window,
-            text="Environmental Sensors",
+            text="Sensors",
             relief=tk.GROOVE)
         self.bottom_frame = ttk.Frame(
             self.window, relief=tk.GROOVE)
@@ -210,29 +210,32 @@ class GoPiGoGUI:
         """Create and layout widgets"""
         # Reference for GUI display
         """
-        W = Forward      Q = Spin Left
-        S = Backward     E = Spin Right
-        A = Left         T = Increase Speed
-        D = Right        G = Decrease Speed  
-        Spacebar = Stop
+                    W: Forward      
+        A: Left    Spacebar: Stop   D: Right   
+                    S: Backward     
+        Q = Spin Left   E = Spin Right
+        T = Increase Speed  G = Decrease Speed  
+        
         Speed: 200      Voltage 
         Temp          Humidity     Pressure
         Exit button
         
         """
         # Create widgets
-        lbl_remote_w = ttk.Label(self.top_frame, text="W: Forward")
-        lbl_remote_q = ttk.Label(self.top_frame, text="Q: Spin Left")
-        lbl_remote_s = ttk.Label(self.top_frame, text="S: Backward")
-        lbl_remote_e = ttk.Label(self.top_frame, text="E: Spin Right")
-        lbl_remote_a = ttk.Label(self.top_frame, text="A: Left")
-        lbl_remote_d = ttk.Label(self.top_frame, text="D: Right")
-        lbl_remote_t = ttk.Label(
-            self.top_frame, text="T: Increase Speed")
-        lbl_remote_g = ttk.Label(
-            self.top_frame, text="G: Decrease Speed")
+        lbl_remote_w = ttk.Label(self.top_frame, text=" W: Forward",relief=tk.RIDGE)
+        lbl_remote_a = ttk.Label(self.top_frame, text=" A: Left",relief=tk.RIDGE)
         lbl_remote_spacebar = ttk.Label(
-            self.top_frame, text="Spacebar: Stop")
+            self.top_frame, text=" Spacebar: Stop",relief=tk.RIDGE)        
+        lbl_remote_d = ttk.Label(self.top_frame, text=" D: Right",relief=tk.RIDGE)
+        lbl_remote_s = ttk.Label(self.top_frame, text=" S: Reverse",relief=tk.RIDGE)
+        
+        lbl_remote_q = ttk.Label(self.top_frame, text=" Q: Spin Left",relief=tk.RIDGE)
+        lbl_remote_e = ttk.Label(self.top_frame, text=" E: Spin Right",relief=tk.RIDGE)
+
+        lbl_remote_t = ttk.Label(
+            self.top_frame, text=" T: Increase Speed",relief=tk.RIDGE)
+        lbl_remote_g = ttk.Label(
+            self.top_frame, text=" G: Decrease Speed",relief=tk.RIDGE)
 
         # Get and display current GoPiGo speed setting
         speed = self.gpg.get_speed()
@@ -254,27 +257,25 @@ class GoPiGoGUI:
                               command=self.quit)
 
         # Grid top frame widgets
-        lbl_remote_w.grid(row=0, column=0, sticky=tk.W)
-        lbl_remote_q.grid(row=0, column=1, sticky=tk.W)
+        lbl_remote_w.grid(row=0, column=1, columnspan=2, sticky=tk.W)
+        lbl_remote_a.grid(row=1, column=0, sticky=tk.W)
+        lbl_remote_spacebar.grid(row=1, column=1, columnspan=2, sticky=tk.W)
+        lbl_remote_d.grid(row=1, column=3, sticky=tk.E)        
+        lbl_remote_s.grid(row=2, column=1, columnspan=2, sticky=tk.W)       
 
-        lbl_remote_s.grid(row=1, column=0, sticky=tk.W)
-        lbl_remote_e.grid(row=1, column=1, sticky=tk.W)
-
-        lbl_remote_a.grid(row=2, column=0, sticky=tk.W)
-        lbl_remote_t.grid(row=2, column=1, sticky=tk.W)
-
-        lbl_remote_d.grid(row=3, column=0, sticky=tk.W)
-        lbl_remote_g.grid(row=3, column=1, sticky=tk.W)
-
-        lbl_remote_spacebar.grid(row=4, column=0, sticky=tk.W)
+        lbl_remote_q.grid(row=3, column=0, sticky=tk.W)
+        lbl_remote_e.grid(row=3, column=3, sticky=tk.W)
+       
+        lbl_remote_t.grid(row=4, column=0, columnspan=2, sticky=tk.W)
+        lbl_remote_g.grid(row=4, column=2, columnspan=2, sticky=tk.E)
 
         # Grid middle frame widgets
         self.lbl_speed.grid(row=0, column=0, sticky=tk.W)
-        self.lbl_voltage.grid(row=1, column=0, sticky=tk.W)
+        self.lbl_voltage.grid(row=0, column=1, sticky=tk.W)
 
-        self.lbl_temp.grid(row=0, column=1, sticky=tk.W)
+        self.lbl_temp.grid(row=1, column=0, sticky=tk.W)
         self.lbl_humidity.grid(row=1, column=1, sticky=tk.W)
-        self.lbl_pressure.grid(row=2, column=1, sticky=tk.W)
+        self.lbl_pressure.grid(row=2, column=0, sticky=tk.W)
 
         # Bottom Frame Widgets
         btn_exit.grid(row=1, column=1, sticky=tk.E)
@@ -282,7 +283,7 @@ class GoPiGoGUI:
         # Set padding for all widgets
         PAD = 7
         for widget in self.top_frame.winfo_children():
-            widget.grid_configure(padx=PAD, pady=PAD)
+            widget.grid_configure(padx=PAD, pady=PAD, ipadx=PAD, ipady=PAD)
         for widget in self.middle_frame.winfo_children():
             widget.grid_configure(padx=PAD, pady=PAD)
         for widget in self.bottom_frame.winfo_children():
