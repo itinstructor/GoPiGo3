@@ -6,13 +6,13 @@ My GoPiGo3 with all its modifications.
 
 ## Video Streaming
 
-- picam2_video_1.py --> Video streaming using Picama2 for Raspberry Pi Bullseye and Bookworm. Using the new libcamera2 camera stack.
-- video_star.py --> Video streaming using OpenCV for Python using legacy camera
+- picam2_video_1.py --> Video streaming using Picam2 and OpenCV for Raspberry Pi Bullseye and Bookworm. Using the new libcamera2 camera stack.
+- video_star.py --> Video streaming using OpenCV for Python using legacy camera stack.
 
 ## GoPiGo3 Code
 
 - ps4_gopigo.py --> Remote control with wireless PS4 game controller to Pi bluetooth. Also used as a library for GoPiGo3 remote control.
-- rc_tkinter_bme280.py --> Tkinter remote control with bme280 sensor readings
+- rc_tkinter_bme280.py --> Tkinter remote control with bme280 sensor readings.
 - bme280_test.py
 - bme280_thingspeak.py --> Upload Temperature, Humidity and Barometric pressure to thingspeak.com
 - bme280_tkinter.py
