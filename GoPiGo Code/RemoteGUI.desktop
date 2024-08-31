@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=RemoteGUI
+Comment=Start 
+Exec=python3 /home/pi/Code/rc_ps4_bme280.py
+Path=/home/pi/Code
+Type=Application
+Encoding=UTF-8
+Terminal=false
