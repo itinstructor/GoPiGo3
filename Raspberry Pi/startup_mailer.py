@@ -22,16 +22,15 @@ from time import sleep  # Use in loop to pause for trying connections
 # *************************************************************************#
 # Change the following email address to
 # the email account that will receive email
-# Add another email address to the list with a comma ',' to
-# send messages to multiple accounts
+# Add another email address to the list to
+# send messages to multiple accounts, put a , between the addresses
 EMAIL_DEST = [
-    "youremail@email.com",
-]
+    "Your email"]
 
 # *************************************************************************#
-# Email account and password used to send email
-EMAIL_FROM = "whoever@gmail.com"
-EMAIL_APP_PASSWORD = "djfkdllwwwlll"
+# Email account and App password to send email through Gmail
+EMAIL_FROM = "whatever@gmail.com"
+APP_PASSWORD = ""
 
 # *************************************************************************#
 #     DO NOT CHANGE ANYTHING BELOW THIS POINT                              #
@@ -117,9 +116,11 @@ def get_ip_address():
             exit()
         try:
             local_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            
             # IP address and port to connect to
             local_socket.connect(("8.8.8.8", 80))
             local_ip_address = local_socket.getsockname()[0]
+            
             # print(ip_address) # For testing only
             break
         except Exception as e:
@@ -135,7 +136,7 @@ def get_ip_address():
 def main():
     send_mail(
         EMAIL_FROM,
-        EMAIL_APP_PASSWORD,
+        APP_PASSWORD,
         EMAIL_DEST,
     )
 
