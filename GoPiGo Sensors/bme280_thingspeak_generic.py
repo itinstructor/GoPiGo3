@@ -11,8 +11,7 @@
 
 # Import the time library for the sleep function
 import time
-# For clean CTRL-C break
-import sys
+import sys  # For clean CTRL-C break
 import requests
 # Import GoPiGo3 library
 from easygopigo3 import EasyGoPiGo3
@@ -20,10 +19,10 @@ from easygopigo3 import EasyGoPiGo3
 from di_sensors.easy_temp_hum_press import EasyTHPSensor
 
 # api key for updating ThingSpeak channel
-TS_KEY = "Your Thingspeak API Key"
+TS_KEY = "Your ThingSpeak API Key"
 
 # ThingSpeak data dictionary
-ts_data = {}    # Thingspeak data dictionary
+ts_data = {}
 
 # Create an instance of the GoPiGo3 class
 gpg = EasyGoPiGo3()
@@ -34,15 +33,15 @@ my_thp = EasyTHPSensor()
 
 def main():
     while True:
-        # ======================================================================
+        # ==================================================================
         # field1: Read Temperature in Fahrenheit
         temp = my_thp.safe_fahrenheit()
 
-        # ======================================================================
+        # ==================================================================
         # field2: Read Relative Humidity in percent
         hum = my_thp.safe_humidity()
 
-        # ======================================================================
+        # ==================================================================
         # field3: Read barometric pressure in pascals
         press = my_thp.safe_pressure()
 
@@ -51,8 +50,10 @@ def main():
 
         # Print the values to the console
         print("Upload data to ThingSpeak (CTRL-C to quit)")
-        print(
-            f"Temperature: {temp:3.0f}°F | Humidity: {hum:3.0f}% | Pressure: {press:3.2f} inHg")
+        message = f"Temperature: {temp:3.0f}°F | "
+        message = message + f"Humidity: {hum:3.0f}% | "
+        message = message + f"Pressure: {press:3.2f} inHg"
+        print(message)
 
         # Send sensor data to ThingSpeak
         thingspeak_send(temp, hum, press)
@@ -79,7 +80,9 @@ def thingspeak_send(temp, hum, press):
 
     # Update data on Thingspeak
     ts_update = requests.get(
-        "https://api.thingspeak.com/update", params=params)
+        "https://api.thingspeak.com/update",
+        params=params
+    )
 
     # Was the update successful?
     if ts_update.status_code == requests.codes.ok:
