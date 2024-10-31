@@ -24,7 +24,7 @@
 # History
 # ------------------------------------------------
 # Author        Date            Comments
-# Loring        04/28/18        Ported from GoPiG, converted to GoPiGo3
+# Loring        04/28/18        Ported from GoPiGo, converted to GoPiGo3
 # Loring        09/06/21        Converted to Python3
 # Loring        09/24/21        Refactored to OOP
 
@@ -81,7 +81,7 @@ class RemoteControlGUI:
         # Fill the background with black
         self.background.fill(self.BLACK)
 
-# ------------------------ DISPLAY INSTRUCTIONS -------------------------- #
+# -------------------------- DISPLAY INSTRUCTIONS ------------------------ #
     def display_instructions(self):
         """ Create and display instructions for the GUI """
         # Create instructions for remote control of the robot
@@ -129,7 +129,7 @@ class RemoteControlGUI:
         # Update the screen from the screen backbuffer
         pygame.display.update()
 
-# -------------------------- INCREASE SPEED ------------------------------ #
+# ----------------------- INCREASE SPEED --------------------------------- #
     def increase_speed(self):
         """ Increase the speed of the GoPiGo """
         # Get the current speed
@@ -154,7 +154,7 @@ class RemoteControlGUI:
             (10, 300)         # x, y coordinates
         )
 
-# ------------------------- DECREASE SPEED ------------------------------- #
+# ------------------------- DECREASE SPEED -------------------------------- #
     def decrease_speed(self):
         """ Decrease the speed of the GoPiGo """
         # Get current speed
@@ -173,7 +173,7 @@ class RemoteControlGUI:
         self.window.blit(self.background, (0, 0))
         self.window.blit(label, (10, 300))
 
-# -------------------------- MENU LOOP ----------------------------------- #
+# --------------------------- MENU LOOP ---------------------------------- #
     def menu_loop(self):
         """ Loop to capture keystrokes """
         while True:
@@ -254,4 +254,7 @@ def main():
     remote_control_gui.menu_loop()
 
 
-main()
+# If a standalone program, call the main function
+# Else, use as a module
+if __name__ == '__main__':
+    main()

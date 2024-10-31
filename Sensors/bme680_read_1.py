@@ -2,7 +2,7 @@
 """
     Filename: bme680_read_1.py
     Purpose: Use Pimoroni library to read
-    temperature, pressure, and humidity from Bosch bme280 sensor
+    temperature, pressure, and humidity from Bosch bme680 sensor
     !Connect to I2C bus
     Press Ctrl+C to exit
 """
@@ -31,7 +31,3 @@ while True:
     print(sensor.data.humidity)
 
     sleep(1)
-
-
-
-

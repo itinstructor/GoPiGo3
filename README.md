@@ -4,11 +4,6 @@
 
 My GoPiGo3 with all its modifications.
 
-## Video Streaming
-
-- picam2_video_1.py --> Video streaming using Picam2 and OpenCV for Raspberry Pi Bullseye and Bookworm. Using the new libcamera2 camera stack.
-- video_star.py --> Video streaming using OpenCV for Python using legacy camera stack.
-
 ## GoPiGo3 Code
 
 - ps4_gopigo.py --> Remote control with wireless PS4 game controller to Pi bluetooth. Also used as a library for GoPiGo3 remote control.
@@ -19,6 +14,7 @@ My GoPiGo3 with all its modifications.
 - pi_info_linux.py
 - psutil_system_info.py
 - rc_gui_ps4_bme280.py --> Uses ps4_gopigo.py as a module to run the joystick with gui and bme280. Screenshot below.
+- video_pi.py --> Video streaming using Picam2 for Raspberry Pi Bullseye and Bookworm. Using the new libcamera2 camera stack.
 
 ![GoPiGo3 Remote Control](./img/GoPiGo3Remote.png)
 
@@ -30,7 +26,7 @@ My GoPiGo3 with all its modifications.
   - Go to [billthecomputerguy.com/gopigo](https://www.billthecomputerguy.com/gopigo) for example readings.
 - GoPiGo3 Sensors Tutorial
 - GoPiGo Tutorials
-- Raspberry Pi Getting Started Buster Tutorial
+- Raspberry Pi Getting Started Buster, Bullseye, and Bookworm Tutorial
 - Raspberry Pi Sensors
 
 ## Projects
