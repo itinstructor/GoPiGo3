@@ -15,6 +15,7 @@ class ThreadingApp:
         # Call the method to set up the GUI elements
         self.setup_gui()
 
+# ----------------------------- SETUP GUI ---------------------------------- #
     def setup_gui(self):
         # Create label widget to display text
         self.lbl_display = tk.Label(self.root, text="Threading with Tkinter")
@@ -30,6 +31,7 @@ class ThreadingApp:
         # Place button in the window with 20 pixels padding on top and bottom
         start_button.pack(pady=20)
 
+# ----------------------------- BACKGROUND TASK ---------------------------- #
     def background_task(self):
         """This method runs in a separate thread
            and performs a background task"""
@@ -39,11 +41,12 @@ class ThreadingApp:
             now = f"{now.tm_min:02d}:{now.tm_sec:02d}"
             self.lbl_display.config(
                 text=f"Running background task {now}"
-                )
+            )
 
             # Pause for 1 second before the next update
             time.sleep(1)
 
+# ----------------------------- START THREAD ------------------------------- #
     def start_thread(self):
         # Create a new thread object
         thread = Thread(
@@ -53,6 +56,7 @@ class ThreadingApp:
         # Start the thread's execution
         thread.start()
 
+# ----------------------------- RUN APPLICATION ---------------------------- #
     def run(self):
         # Start the main event loop of the application
         self.root.mainloop()

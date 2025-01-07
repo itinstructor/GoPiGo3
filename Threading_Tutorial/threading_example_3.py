@@ -5,7 +5,7 @@
 import threading
 
 
-# ---------------------- TEST FUNCTIONS ---------------------------------- #
+# ------------------------ TEST FUNCTIONS ---------------------------------- #
 def function1():
     for i in range(5):
         print("ONE ")
@@ -22,14 +22,14 @@ def function3():
 
 
 def main():
-    # ------------------- NORMAL LINEAR FUNCTIONS ------------------------ #
+    # ----------------- NORMAL SEQUENTIAL FUNCTIONS ------------------------ #
     # If we call these functions, the first function call
     # MUST complete before the next, they are executed in sequence.
     # function1()
     # function2()
     # function3()
 
-    # ---------------------- THREADED FUNCTIONS -------------------------- #
+    # ---------------------- THREADED FUNCTIONS ---------------------------- #
     # We can execute these functions concurrently using threads.
     # We must have a target function for a thread.
     t1 = threading.Thread(target=function1)
@@ -40,7 +40,7 @@ def main():
     t2.start()
     t3.start()
 
-    # This pauses the main program until the thread is complete
+    # This pauses the main program until the threads are complete
     t1.join()
     t2.join()
     t3.join()

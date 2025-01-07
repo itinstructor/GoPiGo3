@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-    Filename: threading_example.py
+    Filename: threading_example_2.py
 """
 import threading
 
 
-# ---------------------- TEST FUNCTIONS ---------------------------------- #
+# ------------------------ TEST FUNCTIONS ---------------------------------- #
 def function1():
     for i in range(5):
         print("ONE ")
@@ -22,14 +22,14 @@ def function3():
 
 
 def main():
-    # ------------------- NORMAL LINEAR FUNCTIONS ------------------------ #
+    # ----------------- NORMAL SEQUENTIAL FUNCTIONS ------------------------ #
     # If we call these functions, the first function call
     # MUST complete before the next, they are executed linearly
     # function1()
     # function2()
     # function3()
 
-    # ---------------------- THREADED FUNCTIONS -------------------------- #
+    # ---------------------- THREADED FUNCTIONS ---------------------------- #
     # We can execute these functions concurrently using threads.
     # We must have a target function for a thread.
     t1 = threading.Thread(target=function1)

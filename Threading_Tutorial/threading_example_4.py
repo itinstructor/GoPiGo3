@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
     Filename: threading_example_4.py
+    Description: Example of threading in Python using queues.
 """
 
 import threading        # https://docs.python.org/3/library/threading.html
@@ -49,7 +50,7 @@ class ThreadExample():
             f"All workers completed their tasks after {elapsed_time} seconds"
         )
 
-# ---------------------- WORKER METHOD ----------------------------------- #
+# ------------------------ WORKER METHOD ----------------------------------- #
     def worker(self):
         """This method does all the work"""
         while True:

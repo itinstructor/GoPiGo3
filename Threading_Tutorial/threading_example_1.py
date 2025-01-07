@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-    Filename: threading_example.py
+    Filename: threading_example_1.py
 """
 
 
-# ---------------------- TEST FUNCTIONS -----------------------------------#
+# ------------------------ TEST FUNCTIONS ---------------------------------- #
 def function1():
     for i in range(5):
         print("ONE ")
@@ -21,8 +21,8 @@ def function3():
 
 
 def main():
-    # ------------------- NORMAL LINEAR FUNCTIONS ------------------------ #
-    # If we call these functions, the first function call
+    # --------------- NORMAL SEQUENTIAL FUNCTIONS -------------------------- #
+    # When we call these functions, the first function call
     # MUST complete before the next, they are executed in sequence
     function1()
     function2()
