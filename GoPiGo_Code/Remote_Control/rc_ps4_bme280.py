@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: UTF-8 -*-
 # Filename: rc_ps4_bme280.py
 # Based on
 # https://pythonprogramming.net/robotics-raspberry-pi-tutorial-gopigo-introduction

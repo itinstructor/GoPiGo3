@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-# Based on
-# https://pythonprogramming.net/robotics-raspberry-pi-tutorial-gopigo-introduction
-# EasyGoPiGo3 documentation: https://gopigo3.readthedocs.io/en/latest
-# Purpose: GoPiGo3 Tkinter remote control program
-# with Bosch BME280 Temperature, Humidity, and Pressure sensor
-# ------------------------------------------------
-# History
-# ------------------------------------------------
-# Author     Date           Comments
-# Loring     09/12/21       Convert to EasyGoPiGo3, OOP, test with Python 3.7
-# Loring     10/23/21       Add battery voltage display
-# Loring     11/11/21       Add BME280 sensor display
+""" Purpose: GoPiGo3 Tkinter remote control program
+with Bosch BME280 Temperature, Humidity, and Pressure sensor
+and battery voltage display
+The BME280 is read every 15 seconds using the 'after' method
 
+------------------------------------------------
+History
+------------------------------------------------
+Author     Date           Comments
+Loring     09/12/21       Convert to EasyGoPiGo3, OOP, test with Python 3.7
+Loring     10/23/21       Add battery voltage display
+Loring     11/11/21       Add BME280 sensor display using 'after' method
+"""
 import tkinter as tk
 import tkinter.ttk as ttk
 # Import EasyGoPiGo3 library
