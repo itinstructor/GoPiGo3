@@ -31,25 +31,26 @@ from ps4_gopigo import MyController
 # You may have to change the degrees to adapt to your servo
 # All servos line up slightly differently
 FORWARD = 90
-
+MAX_SPEED = 600             # Maximum speed setting for GoPiGo3
+MIN_SPEED = 100             # Minimum speed setting for GoPiGo3
 
 class GoPiGoGUI:
     def __init__(self):
-        # -------------------- INITIALIZE PROGRAM WINDOW --------------------- #
-        self.root = tk.Tk()
-        self.root.title("GoPiGo3 Remote")
+        # ------------------ INITIALIZE PROGRAM WINDOW --------------------- #
+        self.window = tk.Tk()
+        self.window.title("GoPiGo3 Remote")
         # Set the window size and location
         # horizontal vertical pixels in size, location at 50x50
-        self.root.geometry("+50+50")
+        self.window.geometry("+50+50")
         # The window can't be resized
-        self.root.resizable(0, 0)
+        self.window.resizable(0, 0)
         # Call self.quit when window is closed
-        self.root.protocol("WM_DELETE_WINDOW", self.quit)
+        self.window.protocol("WM_DELETE_WINDOW", self.quit)
         # Color and padding to edge of window
-        self.root.config(padx=5, pady=5)
+        self.window.config(padx=5, pady=5)
         # Create EasyGoPiGo3 object
 
-    # ---------------------- INITIALIZE GOPIGO3 -------------------------- #
+    # ---------------------- INITIALIZE GOPIGO3 ---------------------------- #
         self.gpg = easy.EasyGoPiGo3()
 
         # Create EasyTHPSensor object
@@ -61,7 +62,7 @@ class GoPiGoGUI:
         # Run PS4 controller in daemon thread
         self.run_controller_in_thread()
 
-    # ---------------------- DISTANCE SENSOR THREAD ---------------------- #
+    # ---------------------- DISTANCE SENSOR THREAD ------------------------ #
         # Create flag for controlling the distance sensor thread
         self.running = True
 
@@ -85,7 +86,7 @@ class GoPiGoGUI:
         self.create_widgets()
 
         # Start the mainloop of the tkinter program
-        self.root.mainloop()
+        self.window.mainloop()
 
 # ---------------------- DISTANCE SENSOR LOOP ---------------------------- #
     def distance_sensor_loop(self):
@@ -178,35 +179,30 @@ class GoPiGoGUI:
         # 'after' runs a function so many milliseconds after the mainloop starts
         # this callback function runs when the mainloop isn't busy
         # 'after' is a non blocking call, it does not interrupt or stall execution
-        self.root.after(15000, self.display_environment_data)
+        self.window.after(15000, self.display_environment_data)
 
 # ------------------------- INCREASE SPEED --------------------------------#
     def increase_speed(self):
-        """Increase speed of the GoPiGo"""
-        # Get the current speed
-        speed = self.gpg.get_speed()
-        # Add 100 to the current speed
-        speed = speed + 100
-        # Keep speed from going beyond 1000
-        if (speed > 600):
-            speed = 600
-        # Set new speed
+        """ Increase the speed of the GoPiGo """
+        speed = self.gpg.get_speed()    # Get the current speed
+        speed = speed + 100             # Add 100 to the current speed
+        # Keep speed from going beyond MAX_SPEED
+        if (speed > MAX_SPEED):
+            speed = MAX_SPEED
+        # Set the new speed
         self.gpg.set_speed(speed)
         # Display current speed
         self.lbl_speed.config(text=f"Speed: {speed}")
 
 # ------------------------- DECREASE SPEED ------------------------------- #
     def decrease_speed(self):
-        """Decrease speed of the GoPiGo"""
-        # Get current speed
-        speed = self.gpg.get_speed()
-        # Subtract 100 from the current speed
-        speed = speed - 100
+        """ Decrease the speed of the GoPiGo """
+        speed = self.gpg.get_speed()    # Get current speed
+        speed = speed - 100             # Subtract 100 from the current speed
         # Keep speed from going below 0
-        if (speed < 100):
-            speed = 100
-        # Set new speed
-        self.gpg.set_speed(speed)
+        if (speed < MIN_SPEED):
+            speed = MIN_SPEED
+        self.gpg.set_speed(speed)       # Set the new speed
         # Display current speed
         self.lbl_speed.config(text=f"Speed: {speed}")
 
@@ -272,17 +268,17 @@ class GoPiGoGUI:
     def create_frames(self):
         """Create and set frames to fill up window"""
         self.top_frame = ttk.LabelFrame(
-            self.root,
+            self.window,
             text="Keyboard Control",
             relief=tk.GROOVE)
 
         self.middle_frame = ttk.LabelFrame(
-            self.root,
+            self.window,
             text="Sensors",
             relief=tk.GROOVE)
 
         self.bottom_frame = ttk.Frame(
-            self.root, relief=tk.GROOVE)
+            self.window, relief=tk.GROOVE)
 
         self.top_frame.pack(fill=tk.X, padx=10, pady=(10, 0))
         self.middle_frame.pack(fill=tk.X, padx=10, pady=10)
@@ -391,15 +387,15 @@ class GoPiGoGUI:
 
         # Bind all key input events to the window
         # This will capture all keystrokes for remote control of robot
-        self.root.bind_all('<Key>', self.remote_control)
+        self.window.bind_all('<Key>', self.remote_control)
 
-    # ------------------------- QUIT PROGRAM ----------------------------- #
+# ----------------------------- QUIT PROGRAM ------------------------------- #
     def quit(self):
         """Deconfigure the sensors, disable the motors,
         restore the LED to the control of the GoPiGo3 firmware."""
         self.servo.disable_servo()
         self.gpg.reset_all()
-        self.root.destroy()
+        self.window.destroy()
 
 
 # Create remote control object

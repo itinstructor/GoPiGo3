@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """ 
+Filename: rc_bme280.py
 Purpose: GoPiGo3 Tkinter remote control program
 with Bosch BME280 Temperature, Humidity, and Pressure sensor
 and battery voltage display
@@ -19,6 +20,8 @@ import tkinter.ttk as ttk
 # Import EasyGoPiGo3 library
 import easygopigo3 as easy
 from di_sensors.easy_temp_hum_press import EasyTHPSensor
+MAX_SPEED = 600             # Maximum speed setting for GoPiGo3
+MIN_SPEED = 100             # Minimum speed setting for GoPiGo3
 
 
 class GoPiGoGUI:
@@ -99,35 +102,30 @@ class GoPiGoGUI:
 
 # ------------------------- INCREASE SPEED --------------------------------- #
     def increase_speed(self):
-        """Increase speed of the GoPiGo"""
-        # Get the current speed
-        speed = self.gpg.get_speed()
-        # Add 100 to the current speed
-        speed = speed + 100
-        # Keep speed from going beyond 1000
-        if (speed > 600):
-            speed = 600
-        # Set new speed
+        """ Increase the speed of the GoPiGo """
+        speed = self.gpg.get_speed()    # Get the current speed
+        speed = speed + 100             # Add 100 to the current speed
+        # Keep speed from going beyond MAX_SPEED
+        if (speed > MAX_SPEED):
+            speed = MAX_SPEED
+        # Set the new speed
         self.gpg.set_speed(speed)
         # Display current speed
         self.lbl_speed.config(text=f"Speed: {speed}")
 
 # ------------------------- DECREASE SPEED --------------------------------- #
     def decrease_speed(self):
-        """Decrease speed of the GoPiGo"""
-        # Get current speed
-        speed = self.gpg.get_speed()
-        # Subtract 100 from the current speed
-        speed = speed - 100
+        """ Decrease the speed of the GoPiGo """
+        speed = self.gpg.get_speed()    # Get current speed
+        speed = speed - 100             # Subtract 100 from the current speed
         # Keep speed from going below 0
-        if (speed < 100):
-            speed = 100
-        # Set new speed
-        self.gpg.set_speed(speed)
+        if (speed < MIN_SPEED):
+            speed = MIN_SPEED
+        self.gpg.set_speed(speed)       # Set the new speed
         # Display current speed
         self.lbl_speed.config(text=f"Speed: {speed}")
 
-# -------------------------- KEY INPUT ------------------------------------- #
+# ------------------------ REMOTE CONTROL ---------------------------------- #
     def remote_control(self, event):
         """Get keystrokes for remote control"""
         # Get all key presses as lower case
