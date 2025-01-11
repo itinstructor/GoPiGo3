@@ -3,7 +3,7 @@
     Name: ps4_gopigo.py
     Author: William A Loring
     Created: 07/03/24
-    Purpose: PS4 gamecontroller on the GoPiGo, no interface
+    Purpose: PS4 gamecontroller on the GoPiGo3, no user interface
     This program can be used as a program or a module 
     https://github.com/ArturSpirin/pyPS4Controller
 """
@@ -27,7 +27,6 @@ class MyController(Controller):
         super().__init__(**kwargs)
 
         # Set min and max values for joystick
-        # self.min_joystick = 0
         self.MIN_JOYSTICK = -32767
         self.MAX_JOYSTICK = 32767
 
@@ -74,8 +73,6 @@ class MyController(Controller):
         # Normalize the joystick value to the range of power output values
         # Shift the joystick value to start from 0
         # Scale it to the power range and shift it to the minimum power value
-        # normalized_value = (joystick_value - self.min_joystick) * \
-        #     self.range_power / self.range_joystick + self.min_power
 
         # Subtract the minimum joystick value to normalize the input
         normalized_value = joystick_value - self.MIN_JOYSTICK
@@ -96,6 +93,7 @@ class MyController(Controller):
         #         int(normalized_value)
         #     )
         # )
+
         # Ensure the normalized value is a positive integer
         return abs(normalized_value)
 

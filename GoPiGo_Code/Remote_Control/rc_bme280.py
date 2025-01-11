@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-""" Purpose: GoPiGo3 Tkinter remote control program
+# -*- coding: utf-8 -*-
+""" 
+Purpose: GoPiGo3 Tkinter remote control program
 with Bosch BME280 Temperature, Humidity, and Pressure sensor
 and battery voltage display
 The BME280 is read every 15 seconds using the 'after' method
@@ -17,25 +19,11 @@ import tkinter.ttk as ttk
 # Import EasyGoPiGo3 library
 import easygopigo3 as easy
 from di_sensors.easy_temp_hum_press import EasyTHPSensor
-# Set servo pointing straight ahead
-# You may have to change the degrees to adapt to your servo
-# All servos line up slightly differently
-FORWARD = 90
 
 
 class GoPiGoGUI:
     def __init__(self):
-        # Create EasyGoPiGo3 object
-        self.gpg = easy.EasyGoPiGo3()
-        # Set initial speed
-        self.gpg.set_speed(200)
-        # Create EasyTHPSensor object
-        self.my_thp = EasyTHPSensor()
-
-        # Initialize servo object on Servo Port 2
-        self.servo = self.gpg.init_servo("SERVO1")
-        self.servo.rotate_servo(FORWARD)
-
+        # ------------------- INITIALIZE GUI ------------------------------- #
         self.window = tk.Tk()
         self.window.title("GoPiGo3 Remote")
         # Set the window size and location
@@ -48,16 +36,25 @@ class GoPiGoGUI:
         # Color and padding to edge of window
         self.window.config(padx=5, pady=5)
 
+        # ------------------- INITIALIZE SENSORS --------------------------- #
+        # Create EasyGoPiGo3 object
+        self.gpg = easy.EasyGoPiGo3()
+        # Set initial speed
+        self.gpg.set_speed(200)
+        # Create EasyTHPSensor object
+        self.my_thp = EasyTHPSensor()
+
         # Read sensors for the first time
         self.read_environment_data()
 
+        # ------------------ CREATE FRAMES AND WIDGETS --------------------- #
         self.create_frames()
         self.create_widgets()
 
         # Start the mainloop of the tkinter program
         self.window.mainloop()
 
-# -------------------------- READ ENVIRONMENT DATA ----------------------- #
+# -------------------------- READ ENVIRONMENT DATA ------------------------- #
     def read_environment_data(self):
         """Read Bosch bme280 sensor, temp, humidity, pressure"""
         # Read temperature
@@ -65,6 +62,7 @@ class GoPiGoGUI:
         self.temp_fahrenheit = self.my_thp.safe_fahrenheit()
         # Compensate for heat of Raspberry Pi
         self.temp_fahrenheit = self.temp_fahrenheit - 4
+
         # Read relative humidity
         self.humidity = self.my_thp.safe_humidity()
 
@@ -80,7 +78,7 @@ class GoPiGoGUI:
         # Read GPG3 battery voltage
         self.voltage = round(self.gpg.volt(), 1)
 
-# ------------------- DISPLAY ENVIRONMENT DATA --------------------------- #
+# ------------------- DISPLAY ENVIRONMENT DATA ----------------------------- #
     def display_environment_data(self):
         """Display environment data"""
         self.read_environment_data()
@@ -99,7 +97,7 @@ class GoPiGoGUI:
         # 'after' is a non blocking call, it does not interrupt or stall execution
         self.window.after(15000, self.display_environment_data)
 
-# ------------------------- INCREASE SPEED --------------------------------#
+# ------------------------- INCREASE SPEED --------------------------------- #
     def increase_speed(self):
         """Increase speed of the GoPiGo"""
         # Get the current speed
@@ -114,7 +112,7 @@ class GoPiGoGUI:
         # Display current speed
         self.lbl_speed.config(text=f"Speed: {speed}")
 
-# ------------------------- DECREASE SPEED ------------------------------- #
+# ------------------------- DECREASE SPEED --------------------------------- #
     def decrease_speed(self):
         """Decrease speed of the GoPiGo"""
         # Get current speed
@@ -129,7 +127,7 @@ class GoPiGoGUI:
         # Display current speed
         self.lbl_speed.config(text=f"Speed: {speed}")
 
-# -------------------------- KEY INPUT ----------------------------------- #
+# -------------------------- KEY INPUT ------------------------------------- #
     def remote_control(self, event):
         """Get keystrokes for remote control"""
         # Get all key presses as lower case
@@ -185,7 +183,7 @@ class GoPiGoGUI:
         elif key_press == "escape":
             self.quit()
 
-# ------------------------- CREATE FRAMES -------------------------------- #
+# ------------------------- CREATE FRAMES ---------------------------------- #
     def create_frames(self):
         """Create and set frames to fill up window"""
         self.top_frame = ttk.LabelFrame(
@@ -205,7 +203,7 @@ class GoPiGoGUI:
         self.middle_frame.pack_propagate(False)
         self.bottom_frame.pack_propagate(False)
 
-# ------------------------- CREATE WIDGETS ------------------------------- #
+# ------------------------- CREATE WIDGETS --------------------------------- #
     def create_widgets(self):
         """Create and layout widgets"""
         # Reference for GUI display
@@ -222,20 +220,26 @@ class GoPiGoGUI:
         
         """
         # Create widgets
-        lbl_remote_w = ttk.Label(self.top_frame, text=" W: Forward",relief=tk.RIDGE)
-        lbl_remote_a = ttk.Label(self.top_frame, text=" A: Left",relief=tk.RIDGE)
+        lbl_remote_w = ttk.Label(
+            self.top_frame, text=" W: Forward", relief=tk.RIDGE)
+        lbl_remote_a = ttk.Label(
+            self.top_frame, text=" A: Left", relief=tk.RIDGE)
         lbl_remote_spacebar = ttk.Label(
-            self.top_frame, text=" Spacebar: Stop",relief=tk.RIDGE)        
-        lbl_remote_d = ttk.Label(self.top_frame, text=" D: Right",relief=tk.RIDGE)
-        lbl_remote_s = ttk.Label(self.top_frame, text=" S: Reverse",relief=tk.RIDGE)
-        
-        lbl_remote_q = ttk.Label(self.top_frame, text=" Q: Spin Left",relief=tk.RIDGE)
-        lbl_remote_e = ttk.Label(self.top_frame, text=" E: Spin Right",relief=tk.RIDGE)
+            self.top_frame, text=" Spacebar: Stop", relief=tk.RIDGE)
+        lbl_remote_d = ttk.Label(
+            self.top_frame, text=" D: Right", relief=tk.RIDGE)
+        lbl_remote_s = ttk.Label(
+            self.top_frame, text=" S: Reverse", relief=tk.RIDGE)
+
+        lbl_remote_q = ttk.Label(
+            self.top_frame, text=" Q: Spin Left", relief=tk.RIDGE)
+        lbl_remote_e = ttk.Label(
+            self.top_frame, text=" E: Spin Right", relief=tk.RIDGE)
 
         lbl_remote_t = ttk.Label(
-            self.top_frame, text=" T: Increase Speed",relief=tk.RIDGE)
+            self.top_frame, text=" T: Increase Speed", relief=tk.RIDGE)
         lbl_remote_g = ttk.Label(
-            self.top_frame, text=" G: Decrease Speed",relief=tk.RIDGE)
+            self.top_frame, text=" G: Decrease Speed", relief=tk.RIDGE)
 
         # Get and display current GoPiGo speed setting
         speed = self.gpg.get_speed()
@@ -260,12 +264,12 @@ class GoPiGoGUI:
         lbl_remote_w.grid(row=0, column=1, columnspan=2, sticky=tk.W)
         lbl_remote_a.grid(row=1, column=0, sticky=tk.W)
         lbl_remote_spacebar.grid(row=1, column=1, columnspan=2, sticky=tk.W)
-        lbl_remote_d.grid(row=1, column=3, sticky=tk.E)        
-        lbl_remote_s.grid(row=2, column=1, columnspan=2, sticky=tk.W)       
+        lbl_remote_d.grid(row=1, column=3, sticky=tk.E)
+        lbl_remote_s.grid(row=2, column=1, columnspan=2, sticky=tk.W)
 
         lbl_remote_q.grid(row=3, column=0, sticky=tk.W)
         lbl_remote_e.grid(row=3, column=3, sticky=tk.W)
-       
+
         lbl_remote_t.grid(row=4, column=0, columnspan=2, sticky=tk.W)
         lbl_remote_g.grid(row=4, column=2, columnspan=2, sticky=tk.E)
 
@@ -293,7 +297,7 @@ class GoPiGoGUI:
         # This will capture all keystrokes for remote control of robot
         self.window.bind_all('<Key>', self.remote_control)
 
-    # ------------------------- QUIT PROGRAM ----------------------------- #
+    # ------------------------- QUIT PROGRAM ------------------------------- #
     def quit(self):
         """Deconfigure the sensors, disable the motors,
         restore the LED to the control of the GoPiGo3 firmware."""

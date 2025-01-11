@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-
-# Based on https://pythonprogramming.net/robotics-raspberry-pi-tutorial-gopigo-introduction
-# EasyGoPiGo3 documentation: https://gopigo3.readthedocs.io/en/latest
+# -*- coding: utf-8 -*-
+"""
 # Purpose: GoPiGo3 Tkinter remote control program
 # ------------------------------------------------
 # History
@@ -10,7 +9,7 @@
 # Loring     11/10/24       Add threading for distance sensor
 # Loring     09/12/21       Convert to EasyGoPiGo3, OOP, test with Python 3.5
 # Loring     10/23/21       Add battery voltage display
-
+"""
 from tkinter import *       # Import tkinter for GUI
 from tkinter.ttk import *   # Add ttk themed widgets
 from time import sleep      # Import sleep function

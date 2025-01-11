@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-# Based on
-# https://pythonprogramming.net/robotics-raspberry-pi-tutorial-gopigo-introduction
-# EasyGoPiGo3 documentation: https://gopigo3.readthedocs.io/en/latest
-# Purpose: GoPiGo3 Tkinter remote control program
-# with Bosch BME280 Temperature, Humidity, and Pressure sensor
-# ------------------------------------------------
-# History
-# ------------------------------------------------
-# Author     Date           Comments
-# Loring     09/12/21       Convert to EasyGoPiGo3, OOP, test with Python 3.7
-# Loring     10/23/21       Add battery voltage display
-# Loring     11/11/21       Add BME280 sensor display
-
+# -*- coding: utf-8 -*-
+"""
+Purpose: GoPiGo3 Tkinter remote control program
+with Bosch BME280 Temperature, Humidity, and Pressure sensor
+!!! Distance sensor is not implemented yet in this program !!!
+ ------------------------------------------------
+ History
+ ------------------------------------------------
+ Author     Date           Comments
+ Loring     09/12/21       Convert to EasyGoPiGo3, OOP, test with Python 3.7
+ Loring     10/23/21       Add battery voltage display
+ Loring     11/11/21       Add BME280 sensor display
+"""
 import tkinter as tk
 import tkinter.ttk as ttk
 # Import EasyGoPiGo3 library
@@ -34,7 +34,8 @@ class GoPiGoGUI:
         # Create EasyTHPSensor object
         self.my_thp = EasyTHPSensor()
         # Create distance sensor object
-        self.distance_sensor = self.gpg.init_distance_sensor()
+        self.distance_sensor = self.gpg.init_distance_sensor("AD1")
+        
         # Initialize servo object on Servo Port 2
         self.servo = self.gpg.init_servo("SERVO1")
         self.servo.rotate_servo(FORWARD)
@@ -66,18 +67,23 @@ class GoPiGoGUI:
         # Read temperature
         # temp = my_thp.safe_celsius()
         self.temp_fahrenheit = self.my_thp.safe_fahrenheit()
+        
         # Compensate for heat of Raspberry Pi
         self.temp_fahrenheit = self.temp_fahrenheit - 4
+        
         # Read relative humidity
         self.humidity = self.my_thp.safe_humidity()
 
         # Read barometric pressure in pascals
         press_pascals = self.my_thp.safe_pressure()
+        
         # Convert pascals to inHg
         press_inhg = press_pascals / 3386.3886666667
+        
         # Compensate for 3960' altitude 4.04
         # Scottsbluff, NE, Heilig Field, 4.04
         self.press_inhg = press_inhg + 4.04
+        
         # Read GPG3 battery voltage
         self.voltage = round(self.gpg.volt(), 1)
 
