@@ -297,9 +297,6 @@ class GoPiGoGUI:
 
     # ------------------------- QUIT PROGRAM ------------------------------- #
     def quit(self):
-        """Deconfigure the sensors, disable the motors,
-        restore the LED to the control of the GoPiGo3 firmware."""
-        self.gpg.reset_all()
         self.window.destroy()
 
 

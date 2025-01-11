@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-# Purpose: GoPiGo3 Tkinter remote control program
+Filename: rc_distance.py
+Connect Distance Sensor to AD1 port
 # ------------------------------------------------
 # History
 # ------------------------------------------------
 # Author     Date           Comments
 # Loring     11/10/24       Add threading for distance sensor
-# Loring     09/12/21       Convert to EasyGoPiGo3, OOP, test with Python 3.5
+# Loring     09/12/21       Convert to EasyGoPiGo3, OOP, test with Python 3.7
 # Loring     10/23/21       Add battery voltage display
 """
 from tkinter import *       # Import tkinter for GUI
@@ -16,14 +17,16 @@ from time import sleep      # Import sleep function
 from threading import Thread
 
 import easygopigo3 as easy  # Import EasyGoPiGo3 library
+MAX_SPEED = 600             # Maximum speed setting for GoPiGo3
+MIN_SPEED = 100             # Minimum speed setting for GoPiGo3
 
 
 class GoPiGoGUI:
     def __init__(self):
         """ Initialize the program """
-    # -------------------- INITIALIZE PROGRAM WINDOW --------------------- #
+    # -------------------- INITIALIZE PROGRAM WINDOW ----------------------- #
         self.window = Tk()
-        self.window.title("GoPiGo Remote Control")
+        self.window.title("GoPiGo3 Remote Control")
 
         # Set the window size and location
         # 350x250 pixels in size, location at 50x50
@@ -34,11 +37,7 @@ class GoPiGoGUI:
 
         self.window.protocol("WM_DELETE_WINDOW", self.quit)
 
-        # Bind all key input events to the window
-        # This will capture all keystrokes for remote control of robot
-        self.window.bind_all('<Key>', self.key_input)
-
-    # ---------------------- INITIALIZE GOPIGO3 -------------------------- #
+    # ---------------------- INITIALIZE GOPIGO3 ---------------------------- #
         # Create EasyGoPiGo3 object
         self.gpg = easy.EasyGoPiGo3()
 
@@ -46,9 +45,14 @@ class GoPiGoGUI:
         self.gpg.set_speed(200)
 
         # Initialize distance sensor
-        self.distance_sensor = self.gpg.init_distance_sensor()
+        # Connect the distance sensor to the AD1 port
+        self.distance_sensor = self.gpg.init_distance_sensor("AD1")
 
-    # ---------------------- DISTANCE SENSOR THREAD ---------------------- #
+        self.servo2 = self.gpg.init_servo("SERVO2")
+        self.servo2.rotate_servo(90)
+
+    # ---------------------- DISTANCE SENSOR THREAD ------------------------ #
+        self.create_widgets()
         # Create flag for controlling the distance sensor thread
         self.running = True
 
@@ -56,13 +60,11 @@ class GoPiGoGUI:
         self.sensor_thread = Thread(target=self.distance_sensor_loop)
         # Thread will close when main program exits
         self.sensor_thread.daemon = True
+        
         self.sensor_thread.start()
-
-    # -------------------------- GUI WINDOW ------------------------------ #
-        self.create_widgets()
         self.window.mainloop()
 
-# ---------------------- DISTANCE SENSOR LOOP ---------------------------- #
+# ---------------------- DISTANCE SENSOR LOOP ------------------------------ #
     def distance_sensor_loop(self):
         """Continuous loop for reading distance sensor"""
         try:
@@ -89,102 +91,38 @@ class GoPiGoGUI:
             # Uncomment the line below to see the error in the console
             # print(f"Error in distance sensor thread: {e}")
 
-# -------------------------- CREATE WIDGETS -------------------------------#
-    def create_widgets(self):
-        """ Create and layout widgets """
-        # Reference for GUI display
-        """
-        W = Forward      Q = Spin Left
-        S = Backward     E = Spin Right
-        A = Left         T = Increase Speed
-        D = Right        G = Decrease Speed  
-        Spacebar = Stop
-        Temp
-        Speed: 200      Voltage 
-        Z = Exit    Exit button
-        """
-        # Create widgets
-        lbl_remote_w = Label(text="W: Forward")
-        lbl_remote_q = Label(text="Q: Spin Left")
-        lbl_remote_s = Label(text="S: Backward")
-        lbl_remote_e = Label(text="E: Spin Right")
-        lbl_remote_a = Label(text="A: Left")
-        lbl_remote_d = Label(text="D: Right")
-        lbl_remote_t = Label(text="T: Increase Speed")
-        lbl_remote_g = Label(text="G: Decrease Speed")
-        lbl_remote_spacebar = Label(text="Spacebar: Stop")
-        lbl_remote_z = Label(text="Z: Exit")
-
-        self.lbl_distance = Label(text="Distance: ")
-        self.lbl_distance_display = Label(text="")
-
-        # Get and display battery voltage
-        btn_voltage = Button(text="Voltage", command=self.get_battery_voltage)
-        # Round the voltage to 1 decimal place
-        voltage = round(self.gpg.volt(), 1)
-        self.lbl_voltage = Label(
-            text="Voltage: " + str(voltage) + "V")
-
-        btn_exit = Button(text="Exit", command=self.quit)
-
-        # Get and display current GoPiGo speed setting
-        speed = self.gpg.get_speed()
-        self.lbl_speed = Label(text=f"Speed: {speed}")
-
-        # Grid the widgets
-        lbl_remote_w.grid(row=0, column=0, sticky=W)
-        lbl_remote_q.grid(row=0, column=1, sticky=W)
-        lbl_remote_s.grid(row=1, column=0, sticky=W)
-        lbl_remote_e.grid(row=1, column=1, sticky=W)
-        lbl_remote_a.grid(row=2, column=0, sticky=W)
-        lbl_remote_t.grid(row=2, column=1, sticky=W)
-        lbl_remote_d.grid(row=3, column=0, sticky=W)
-        lbl_remote_g.grid(row=3, column=1, sticky=W)
-        lbl_remote_spacebar.grid(row=4, column=0, sticky=W)
-
-        self.lbl_distance.grid(row=4, column=1, sticky=E)
-        self.lbl_distance_display.grid(row=4, column=2, sticky=W)
-
-        self.lbl_speed.grid(row=5, column=0, sticky=W)
-        btn_voltage.grid(row=5, column=1, sticky=E)
-        self.lbl_voltage.grid(row=5, column=2, sticky=W)
-        lbl_remote_z.grid(row=6, column=0, sticky=W)
-        btn_exit.grid(row=6, column=1, sticky=E)
-
-        # Set padding for all widgets
-        for child in self.window.winfo_children():
-            child.grid_configure(padx=5, pady=5)
-
-# ------------------------- INCREASE SPEED ------------------------------- #
+# ------------------------- INCREASE SPEED --------------------------------- #
     def increase_speed(self):
         """ Increase the speed of the GoPiGo """
         speed = self.gpg.get_speed()    # Get the current speed
         speed = speed + 100             # Add 100 to the current speed
-        # Keep speed from going beyond 1000
-        if (speed > 1000):
-            speed = 1000
-        self.gpg.set_speed(speed)       # Set the new speed
+        # Keep speed from going beyond MAX_SPEED
+        if (speed > MAX_SPEED):
+            speed = MAX_SPEED
+        # Set the new speed
+        self.gpg.set_speed(speed)
         # Display current speed
-        self.lbl_speed.config(text="Speed: " + str(speed))
+        self.lbl_speed.config(text=f"Speed: {speed}")
 
-# ------------------------ DECREASE SPEED -------------------------------- #
+# ------------------------ DECREASE SPEED ---------------------------------- #
     def decrease_speed(self):
         """ Decrease the speed of the GoPiGo """
         speed = self.gpg.get_speed()    # Get current speed
         speed = speed - 100             # Subtract 100 from the current speed
         # Keep speed from going below 0
-        if (speed < 100):
-            speed = 100
+        if (speed < MIN_SPEED):
+            speed = MIN_SPEED
         self.gpg.set_speed(speed)       # Set the new speed
         # Display current speed
-        self.lbl_speed.config(text="Speed: " + str(speed))
+        self.lbl_speed.config(text=f"Speed: {speed}")
 
-# ----------------------- GET BATTERY VOLTAGE ---------------------------- #
+# ----------------------- GET BATTERY VOLTAGE ------------------------------ #
     def get_battery_voltage(self):
+        # Read GPG3 battery voltage
         voltage = round(self.gpg.volt(), 1)
-        self.lbl_voltage.config(text="Voltage: " + str(voltage) + "V")
+        self.lbl_voltage.config(text=f"Voltage: {voltage}V")
 
-# --------------------------- KEY INPUT ---------------------------------- #
+# --------------------------- KEY INPUT ------------------------------------ #
     def key_input(self, event):
         # Get all key preseses as lower case
         key_press = event.keysym.lower()
@@ -237,15 +175,82 @@ class GoPiGoGUI:
             self.gpg.led_off("right")
 
         # Exit program
-        elif key_press == 'z':
+        elif key_press == 'escape':
             self.quit()
 
-# ----------------------------- EXIT PROGRAM ----------------------------- #
+# -------------------------- CREATE WIDGETS -------------------------------- #
+    def create_widgets(self):
+        """ Create and layout widgets """
+        # Reference for GUI display
+        """
+        W = Forward      Q = Spin Left
+        S = Backward     E = Spin Right
+        A = Left         T = Increase Speed
+        D = Right        G = Decrease Speed  
+        Spacebar = Stop
+        Temp
+        Speed: 200      Voltage 
+        Escape = Exit    Exit button
+        """
+        # Create widgets
+        lbl_remote_w = Label(text="W: Forward")
+        lbl_remote_q = Label(text="Q: Spin Left")
+        lbl_remote_s = Label(text="S: Backward")
+        lbl_remote_e = Label(text="E: Spin Right")
+        lbl_remote_a = Label(text="A: Left")
+        lbl_remote_d = Label(text="D: Right")
+        lbl_remote_t = Label(text="T: Increase Speed")
+        lbl_remote_g = Label(text="G: Decrease Speed")
+        lbl_remote_spacebar = Label(text="Spacebar: Stop")
+        lbl_remote_z = Label(text="Escape: Exit")
+
+        self.lbl_distance = Label(text="Distance: ")
+        self.lbl_distance_display = Label(text="")
+
+        # Get and display battery voltage
+        btn_voltage = Button(text="Voltage", command=self.get_battery_voltage)
+        # Round the voltage to 1 decimal place
+        voltage = round(self.gpg.volt(), 1)
+        self.lbl_voltage = Label(
+            text=f"Voltage: {voltage}V")
+
+        btn_exit = Button(text="Exit", command=self.quit)
+
+        # Get and display current GoPiGo speed setting
+        speed = self.gpg.get_speed()
+        self.lbl_speed = Label(text=f"Speed: {speed}")
+
+        # Grid the widgets
+        lbl_remote_w.grid(row=0, column=0, sticky=W)
+        lbl_remote_q.grid(row=0, column=1, sticky=W)
+        lbl_remote_s.grid(row=1, column=0, sticky=W)
+        lbl_remote_e.grid(row=1, column=1, sticky=W)
+        lbl_remote_a.grid(row=2, column=0, sticky=W)
+        lbl_remote_t.grid(row=2, column=1, sticky=W)
+        lbl_remote_d.grid(row=3, column=0, sticky=W)
+        lbl_remote_g.grid(row=3, column=1, sticky=W)
+        lbl_remote_spacebar.grid(row=4, column=0, sticky=W)
+
+        self.lbl_distance.grid(row=4, column=1, sticky=E)
+        self.lbl_distance_display.grid(row=4, column=2, sticky=W)
+
+        self.lbl_speed.grid(row=5, column=0, sticky=W)
+        btn_voltage.grid(row=5, column=1, sticky=E)
+        self.lbl_voltage.grid(row=5, column=2, sticky=W)
+        lbl_remote_z.grid(row=6, column=0, sticky=W)
+        btn_exit.grid(row=6, column=1, sticky=E)
+
+        # Set padding for all widgets
+        for child in self.window.winfo_children():
+            child.grid_configure(padx=5, pady=5)
+
+        # Bind all key input events to the window
+        # This will capture all keystrokes for remote control of robot
+        self.window.bind_all('<Key>', self.key_input)
+
+# ----------------------------- QUIT PROGRAM ------------------------------- #
     def quit(self):
-        """Deconfigure the sensors, disable the motors,
-        restore the LED to the control of the GoPiGo3 firmware."""
-        self.gpg.reset_all()
-        self.root.destroy()
+        self.window.destroy()
 
 
 # Create remote control object
