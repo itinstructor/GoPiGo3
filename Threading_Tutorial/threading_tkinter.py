@@ -1,9 +1,6 @@
 import tkinter as tk
-# Import the Thread class from the threading module
-# to handle concurrent operations
-from threading import Thread
-# Import the time module to use sleep() and time() functions
-import time
+from threading import Thread, Event
+from time import localtime, sleep
 
 
 class ThreadingApp:
@@ -12,63 +9,108 @@ class ThreadingApp:
         self.root = tk.Tk()
         # Set the title of the window
         self.root.title("Threading with Tkinter")
+        # Set the size of the window
+        self.root.geometry("150x150")
         # Call the method to set up the GUI elements
         self.setup_gui()
 
+        # Event to signal the thread to stop
+        self.stop_event = Event()
+
+        # Boolean flag to track the thread state
+        self.is_running = False
+
+        # Handle window close event
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.root.mainloop()
+
 # ----------------------------- SETUP GUI ---------------------------------- #
     def setup_gui(self):
-        # Create label widget to display text
-        self.lbl_display = tk.Label(self.root, text="Threading with Tkinter")
-        # Place label in the window with 20 pixels padding on top and bottom
-        self.lbl_display.pack(pady=20)
+        # Create and grid label widget to display text
+        self.lbl_display = tk.Label(self.root, text="Background Task Stopped")
+        self.lbl_display.grid(row=0, column=0, columnspan=2, pady=20)
 
-        # Create a button that will start the thread when clicked
-        start_button = tk.Button(
+        # Create and grid a button that will start/stop the thread when clicked
+        self.toggle_button = tk.Button(
             self.root,                    # Parent widget is the main window
             text="Start Thread",          # Text shown on the button
-            command=self.start_thread     # Function to call when button is clicked
+            command=self.toggle_thread    # Method called when button is clicked
         )
-        # Place button in the window with 20 pixels padding on top and bottom
-        start_button.pack(pady=20)
+        self.toggle_button.grid(
+            row=1, column=0, columnspan=2, pady=20, padx=10)
 
 # ----------------------------- BACKGROUND TASK ---------------------------- #
     def background_task(self):
         """This method runs in a separate thread
            and performs a background task"""
-        while True:  # Infinite loop
+        # While the stop event is not set, keep running the task
+        while not self.stop_event.is_set():
             # Update the label text with the current timestamp
-            now = time.localtime()
-            now = f"{now.tm_min:02d}:{now.tm_sec:02d}"
+            self.get_local_time()
             self.lbl_display.config(
-                text=f"Running background task {now}"
+                text=f"Background Task Running\n {self.now}"
             )
 
             # Pause for 1 second before the next update
-            time.sleep(1)
+            sleep(1)
+
+# ----------------------------- TOGGLE THREAD ------------------------------ #
+    def toggle_thread(self):
+        if self.is_running:
+            self.stop_thread()
+        else:
+            self.start_thread()
 
 # ----------------------------- START THREAD ------------------------------- #
     def start_thread(self):
+        # Clear the stop event before starting the thread
+        self.stop_event.clear()
         # Create a new thread object
-        thread = Thread(
+        self.thread = Thread(
             target=self.background_task,  # Function to run in the thread
             daemon=True                   # Thread stops when program ends
         )
-        # Start the thread's execution
-        thread.start()
+        # Start the thread
+        self.thread.start()
 
-# ----------------------------- RUN APPLICATION ---------------------------- #
-    def run(self):
-        # Start the main event loop of the application
-        self.root.mainloop()
+        # Update the button text
+        self.toggle_button.config(text="Stop Thread")
+
+        # Update the flag value
+        self.is_running = True
+
+# ----------------------------- STOP THREAD -------------------------------- #
+    def stop_thread(self):
+        # Set the stop event to signal the thread to stop
+        # The thread will stop after the next iteration
+        self.stop_event.set()
+
+        # Update the button text and flag
+        self.toggle_button.config(text="Start Thread")
+
+        self.get_local_time()
+        self.lbl_display.config(text=f"Background Task Stopped\n {self.now}")
+
+        # Update the flag
+        self.is_running = False
+
+# ----------------------------- GET LOCAL TIME ----------------------------- #
+    def get_local_time(self):
+        """Get the current local time and format it"""
+        now = localtime()
+        self.now = f"{now.tm_min:02d}:{now.tm_sec:02d}"
+
+# ----------------------------- ON CLOSING --------------------------------- #
+    def on_closing(self):
+        # Stop the thread when closing the window
+        self.stop_thread()
+        # Destroy the window
+        self.root.destroy()
 
 
 def main():
-    # Create an instance of our application
     app = ThreadingApp()
-    # Start running the application
-    app.run()
 
 
-# Only run the app if this file is run directly (not imported)
 if __name__ == "__main__":
     main()

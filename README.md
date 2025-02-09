@@ -10,7 +10,7 @@ My GoPiGo3 with all its modifications.
 
 ## GoPiGo3 Code
 
-- ps4_gopigo.py --> Remote control with wireless PS4 game controller to Pi bluetooth. PyGame is used. This is used as a library for GoPiGo3 remote control.
+- ps4_gopigo_pygame.py --> Remote control with wireless PS4 game controller to Pi bluetooth. PyGame is used as the library for GoPiGo3 remote control.
 - rc_gui_ps4_bme280.py --> Uses ps4_gopigo.py as a module to run the joystick with gui and bme280. Screenshot below.
 - obstacle_scanner.py --> Tkinter visualization of area using distance sensor.
 - radar_rich.py --> ASCII visualization of area using distance sensor and Python rich library.
