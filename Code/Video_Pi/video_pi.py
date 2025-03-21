@@ -20,7 +20,7 @@ from picamera2 import Picamera2
 # Import PIL for image processing
 from PIL import Image, ImageTk
 # Import datetime for timestamping the saved images
-import datetime
+from datetime import datetime
 # Import threading for running capture in a separate thread
 import threading
 # Import time for timing FPS calculation
@@ -49,20 +49,15 @@ class PiCameraApp:
         # Configure the camera with the preview configuration
         self.picam2.configure(self.config)
 
-        # A flag to control the streaming state, initially set to False
-        self.is_streaming = False
-        self.update_thread_started = False
+        # Event to control the streaming thread
+        self.stream_event = threading.Event()
+        self.capture_thread = None
+
         self.frame_count = 0  # Counter for the number of frames
         self.start_time = time.time()  # Start time for FPS calculation
         # Frame interval in milliseconds (for 30 FPS)
         self.frame_interval = 1000 / 30
         self.image = None  # Store the latest image
-
-        # Initialize and start the capture thread
-        self.capture_thread = threading.Thread(target=self._capture_frames)
-        # Allow the thread to exit when the main program exits
-        self.capture_thread.daemon = True
-        self.capture_thread.start()
 
         self.create_widgets()
         self.window.mainloop()
@@ -70,18 +65,40 @@ class PiCameraApp:
 # ---------------------- START VIDEO STREAM ------------------------------ #
     def start_stream(self):
         """Start the video stream"""
-        self.is_streaming = True  # Set the streaming flag to True
-        self.lbl_status_bar.configure(text=" Video Stream Running . . .")
-        self.btn_start_stop.configure(text="Stop Stream")
-        self.picam2.start()  # Start the camera
+        if not self.stream_event.is_set():
+            self.stream_event.set()  # Signal the thread to start
+            self.lbl_status_bar.configure(text=" Video Stream Running . . .")
+            self.btn_start_stop.configure(text="Stop Stream")
+            self.picam2.start()  # Start the camera
+
+            # Reset frame count and start time for FPS calculation
+            self.frame_count = 0
+            self.start_time = time.time()
+
+            # Start the capture frames thread
+            self.capture_thread = threading.Thread(target=self._capture_frames)
+            self.capture_thread.daemon = True
+            self.capture_thread.start()
+
+            # Start the update image thread
+            self.start_update_image_thread()
 
 # ---------------------- STOP VIDEO STREAM ------------------------------- #
     def stop_stream(self):
         """Stop the video stream"""
-        self.is_streaming = False  # Set the streaming flag to False
-        self.btn_start_stop.configure(text="Start Stream")
-        self.lbl_status_bar.configure(text=" Video Stream Stopped")
-        self.picam2.stop()  # Stop the camera
+        if self.stream_event.is_set():
+            self.stream_event.clear()  # Signal the thread to stop
+            self.btn_start_stop.configure(text="Start Stream")
+            self.lbl_status_bar.configure(text=" Video Stream Stopped")
+            self.picam2.stop()  # Stop the camera
+
+            # Wait for the capture thread to finish
+            if self.capture_thread and self.capture_thread.is_alive():
+                self.capture_thread.join()
+
+            # Reset the update thread flag so it can be restarted
+            self.update_thread_started = False
+
         self.frame_count = 0  # Reset the frame count
 
 # ------------------------ CAPTURE IMAGE ----------------------------------- #
@@ -92,7 +109,7 @@ class PiCameraApp:
         """
         self.stop_stream()
         # Ensure that streaming is stopped before capturing an image
-        if not self.is_streaming:
+        if not self.stream_event.is_set():
             threading.Thread(target=self._capture_image_thread).start()
         self.start_stream()
 
@@ -104,7 +121,7 @@ class PiCameraApp:
             Runs in a separate thread to prevent blocking the main thread.
         """
         # Check again if streaming is stopped before capturing an image
-        if not self.is_streaming:
+        if not self.stream_event.is_set():
             if self.image is not None:
                 # Convert the frame array to an image
                 image = Image.fromarray(self.image)
@@ -114,7 +131,7 @@ class PiCameraApp:
                     image = image.convert('RGB')
 
                 # Generate a timestamped filename for the image
-                filename = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".jpg"
+                filename = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".jpg"
                 # Save the image to the hard drive in JPEG format
                 image.save(filename, 'JPEG')
                 print(f"Image saved as {filename}")
@@ -122,34 +139,46 @@ class PiCameraApp:
 # ------------------------ CAPTURE FRAMES ---------------------------------- #
     def _capture_frames(self):
         """Continuously capture frames from the camera in a separate thread"""
-        while True:
-            if self.is_streaming:
-                # Capture a frame from the camera
-                frame = self.picam2.capture_array()
-                # Store the latest frame
-                self.image = frame
-                # Sleep to maintain frame interval
-                time.sleep(self.frame_interval / 1000.0)
+        while self.stream_event.is_set():
+            # Capture a frame from the camera
+            frame = self.picam2.capture_array()
+            # Store the latest frame
+            self.image = frame
+
+            # Increment frame count
+            self.frame_count += 1
+
+            # Calculate elapsed time
+            elapsed_time = time.time() - self.start_time
+
+            # Update FPS every second
+            if elapsed_time >= 1.0:
+                fps = self.frame_count / elapsed_time
+                self.lbl_status_bar.configure(
+                    text=f" Video Stream Running . . . | FPS: {fps:.2f}"
+                )
+                # Reset frame count and start time
+                self.frame_count = 0
+                self.start_time = time.time()
+
+            # Sleep to maintain frame interval
+            time.sleep(self.frame_interval / 1000.0)
 
 # ------------------------ UPDATE IMAGE ------------------------------------ #
     def update_image(self):
-        """Update the Label widget with the latest image from the camera."""
-        while self.is_streaming:
+        """Update the Canvas widget with the latest image from the camera."""
+        while self.stream_event.is_set():
             # Check if there is a frame to display
             if self.image is not None:
-                # Convert the frame array to an image that can be displayed in Tkinter
+                # Convert frame array to an image that can be displayed in Tkinter
                 image = Image.fromarray(self.image)
                 image = ImageTk.PhotoImage(image)
 
-                # Update the Label widget with the new image
-                # self.label.config(image=image)
-                # self.label.image = image
-                # Create an image on the canvas at the specified coordinates
+                # Update the Canvas widget with the new image
                 self.canvas.create_image(
                     0,            # x-coordinate for the image's top-left corner
                     0,            # y-coordinate for the image's top-left corner
-                    # Anchor image at top-left corner (North-West)
-                    anchor=tk.NW,
+                    anchor=tk.NW, # Anchor image at top-left corner (North-West)
                     image=image   # Image to be displayed
                 )
 
@@ -157,23 +186,13 @@ class PiCameraApp:
                 # to prevent garbage collection
                 self.photo = image
 
-                # Calculate FPS every second
-                # self.frame_count += 1
-                # current_time = time.time()
-                # elapsed_time = current_time - self.start_time
-                # if elapsed_time > 1.0:
-                #     fps = self.frame_count / elapsed_time
-                #     self.lbl_status_bar.config(text=f"FPS: {fps:.2f}")
-                #     self.frame_count = 0
-                #     self.start_time = current_time
-
             # Sleep to maintain frame interval
             time.sleep(self.frame_interval / 1000.0)
 
 # --------------------- START UPDATE IMAGE THREAD -------------------------- #
     def start_update_image_thread(self):
         """Start the update_image method in a separate thread."""
-        if not self.update_thread_started:
+        if not hasattr(self, 'update_thread_started') or not self.update_thread_started:
             update_thread = threading.Thread(target=self.update_image)
             update_thread.daemon = True
             update_thread.start()
@@ -181,12 +200,11 @@ class PiCameraApp:
 
 # ----------------------- START STOP VIDEO STREAM -------------------------- #
     def start_stop_stream(self):
-        """Stop or start the video stream"""
-        if not self.is_streaming:
-            self.start_stream()
-            self.start_update_image_thread()
-        else:
+        """Toggle the video stream on or off"""
+        if self.stream_event.is_set():
             self.stop_stream()
+        else:
+            self.start_stream()
 
 # ------------------ CREATE WIDGETS ---------------------------------------- #
     def create_widgets(self):
@@ -240,13 +258,19 @@ class PiCameraApp:
         # The Escape key will activate the quit method
         self.window.bind('<Escape>', self.quit)
 
-        # Handle window closing clean up cv2  camera resources
+        # Handle window closing clean up camera resources
         self.window.protocol("WM_DELETE_WINDOW", quit)
 
-# --------------------------- QUIT PROGRAM ------------------------------- #
+# --------------------------- QUIT PROGRAM --------------------------------- #
     def quit(self, *args):
+        self.stop_stream()  # Ensure the stream is stopped
         self.window.destroy()
 
 
-# Create an instance of the PiCameraApp class
-app = PiCameraApp()
+def main():
+    # Create an instance of the PiCameraApp class
+    app = PiCameraApp()
+
+
+if __name__ == "__main__":
+    main()
