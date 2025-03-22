@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
-    Name: ps4_pygame_gopigo_1.py
+    Name: ps4_pygame_gopigo.py
     Author: William A Loring
     Created: 01/24/2025
     Purpose: Test the PS4 joystick on a Raspberry Pi with pygame and GoPiGo3
@@ -30,7 +30,7 @@ import pygame
 import easygopigo3 as easy
 
 
-class Ps4Controller:
+class PS4Controller:
     """PlayStation 4 controller class"""
 
     def __init__(self, controller_number=0):
@@ -42,6 +42,8 @@ class Ps4Controller:
             exit()
 
         self.controller = pygame.joystick.Joystick(controller_number)
+        # This is needed for Pygame below V 2.0.0
+        # Buster comes with Pygame 1.9.6
         self.controller.init()
 
     def get_button(self, button_number):
@@ -65,29 +67,37 @@ class GoPiGoController:
 
     def __init__(self, controller_number=0):
         # Constants
-        self.MAX_SPEED = 300  # Maximum speed in degrees per second
-        self.DEADZONE = 0.1   # Joystick deadzone
+        self.MAX_SPEED = 300   # Maximum speed in degrees per second
+        self.DEADZONE = 0.1    # Joystick deadzone
         self.TURN_SCALE = 0.8  # Turn scaling factor
         self.DEBUG = False     # Debug output flag
+        self.FPS = 30          # Frames per second
 
         # Initialize components
-        self.controller = Ps4Controller(controller_number)
+        self.controller = PS4Controller(controller_number)
         self.gpg = easy.EasyGoPiGo3()
         self.running = False
-        self.clock = pygame.time.Clock()
-        pygame.event.set_blocked(None)  # Block all events initially
-        pygame.event.set_allowed([pygame.JOYBUTTONDOWN, pygame.JOYAXISMOTION])  # Only allow necessary events
 
+        # Initialize pygame clock object to control frame rate
+        self.clock = pygame.time.Clock()
+
+        # Block all events initially
+        pygame.event.set_blocked(None)
+        # Only allow necessary events
+        pygame.event.set_allowed([pygame.JOYBUTTONDOWN, pygame.JOYAXISMOTION])
+
+# ------------------------------ SCALE INPUT ------------------------------- #
     def scale_input(self, value):
         """Scale joystick input accounting for deadzone"""
         if abs(value) < self.DEADZONE:
             return 0
         return value
 
+# -------------------------------- UPDATE ---------------------------------- #
     def update(self):
         """Non-blocking update"""
         pygame.event.pump()  # Process event queue without blocking
-        
+
         # Get joystick values directly without event loop
         left_y = -self.scale_input(self.controller.get_axis(1))
         right_x = self.scale_input(self.controller.get_axis(3))
@@ -96,7 +106,7 @@ class GoPiGoController:
         if self.controller.get_button(0):
             self.gpg.stop()
             return
-            
+
         # Calculate motor speeds
         base_speed = left_y * self.MAX_SPEED
 
@@ -104,7 +114,8 @@ class GoPiGoController:
             left_speed = right_x * self.MAX_SPEED
             right_speed = -right_x * self.MAX_SPEED
         else:  # If moving, adjust speeds for turning
-            turn_factor = 1 - abs(right_x)  # Reduce inside wheel speed
+            # Reduce inside wheel speed to turn
+            turn_factor = 1 - abs(right_x)
             if right_x > 0:  # Turning right
                 left_speed = base_speed
                 right_speed = base_speed * turn_factor
@@ -120,8 +131,9 @@ class GoPiGoController:
         self.gpg.set_motor_dps(self.gpg.MOTOR_RIGHT, right_speed)
 
         # Cap frame rate
-        self.clock.tick(30)
+        self.clock.tick(self.FPS)
 
+# -------------------------------- START ----------------------------------- #
     def start(self):
         """Start the control loop"""
         self.running = True
@@ -133,10 +145,12 @@ class GoPiGoController:
         finally:
             self.cleanup()
 
+# -------------------------------- STOP ------------------------------------ #
     def stop(self):
         """Stop the control loop"""
         self.running = False
 
+# ------------------------------- CLEANUP ---------------------------------- #
     def cleanup(self):
         """Clean up resources"""
         self.gpg.stop()
@@ -149,5 +163,7 @@ def main():
     controller.start()
 
 
+# Run the main function if the script is executed
+# (as opposed to being imported as a module)
 if __name__ == "__main__":
     main()

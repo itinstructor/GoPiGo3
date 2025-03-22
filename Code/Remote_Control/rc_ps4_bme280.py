@@ -10,6 +10,7 @@
 # History
 # ------------------------------------------------
 # Author     Date           Comments
+# Loring     03/23/25       Add PS4 controller support with PyGame
 # Loring     09/12/21       Convert to EasyGoPiGo3, OOP, test with Python 3.7
 # Loring     10/23/21       Add battery voltage display
 # Loring     11/11/21       Add BME280 sensor display
@@ -25,7 +26,7 @@ import easygopigo3 as easy
 from di_sensors.easy_temp_hum_press import EasyTHPSensor
 
 # Import ps4 controller library
-from ps4_gopigo import GoPiGoController
+from ps4_gopigo_pygame import PS4Controller
 
 # Set servo pointing straight ahead
 # You may have to change the degrees to adapt to your servo
@@ -126,17 +127,12 @@ class GoPiGoGUI:
     def controller_task(self):
         """Background thread for PS4 controller"""
         try:
-            self.ps4_controller = GoPiGoController()
+            self.ps4_controller = PS4Controller()
             while self.controller_running:
                 # Non-blocking update
-                if self.ps4_controller:
-                    self.ps4_controller.update()
                 sleep(0.016)  # ~60Hz refresh rate
         except Exception as e:
             print(f"Controller error: {e}")
-        finally:
-            if self.ps4_controller:
-                self.ps4_controller.cleanup()
 
 # -------------------------- READ ENVIRONMENT DATA ----------------------- #
     def read_environment_data(self):
@@ -405,11 +401,10 @@ class GoPiGoGUI:
     def quit(self):
         """Clean shutdown"""
         self.controller_running = False
-        if self.ps4_controller:
-            self.ps4_controller.cleanup()
         self.running = False  # Stop distance sensor
         self.window.destroy()
 
 
 # Create remote control object
 gopigo_gui = GoPiGoGUI()
+

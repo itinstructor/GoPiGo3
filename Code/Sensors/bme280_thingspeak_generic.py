@@ -18,7 +18,7 @@ from easygopigo3 import EasyGoPiGo3
 # Import sensor library
 from di_sensors.easy_temp_hum_press import EasyTHPSensor
 
-# api key for updating ThingSpeak channel
+# api key for updating ThingSpeak
 TS_KEY = "Your ThingSpeak API Key"
 
 # ThingSpeak data dictionary
@@ -32,43 +32,51 @@ my_thp = EasyTHPSensor()
 
 
 def main():
+    print(" +-------------------------------------------------------+")
+    print(" | Thingspeak BME280 Temperature, Humidity, and Pressure |")
+    print(" +-------------------------------------------------------+")
+    minutes = float(input(" Minutes between uploads: "))
+    read_time = minutes * 60
+    
     while True:
-        # ==================================================================
+        # ============================================================
         # field1: Read Temperature in Fahrenheit
         temp = my_thp.safe_fahrenheit()
 
-        # ==================================================================
+        # ============================================================
         # field2: Read Relative Humidity in percent
         hum = my_thp.safe_humidity()
 
-        # ==================================================================
+        # ============================================================
         # field3: Read barometric pressure in pascals
-        press = my_thp.safe_pressure()
+        press_pascals = my_thp.safe_pressure()
 
-        # Convert pascals to inHg, compensate for 4000' altitude
-        press = round((press / 3386.38867) + 4.08, 2)
+        # Convert pascals to inHg
+        press_inhg = press_pascals / 3386.3886666667
+        # Compensate for 3960' altitude 4.04
+        # Scottsbluff, NE, Heilig Field, 4.04
+        press_inhg = press_inhg + 4.04
 
         # Print the values to the console
-        print("Upload data to ThingSpeak (CTRL-C to quit)")
-        message = f"Temperature: {temp:3.0f}°F | "
+        print(" Upload data to ThingSpeak (CTRL-C to quit)")
+        message = f" Temperature: {temp:3.0f}°F | "
         message = message + f"Humidity: {hum:3.0f}% | "
-        message = message + f"Pressure: {press:3.2f} inHg"
+        message = message + f"Pressure: {press_inhg:3.2f} inHg"
         print(message)
 
         # Send sensor data to ThingSpeak
-        thingspeak_send(temp, hum, press)
+        thingspeak_send(temp, hum, press_inhg)
 
         # 20 seconds is the minimum amount of time between uploads
-        # Sleep is set to 20 seconds for testing purposes
-        time.sleep(20)
+        time.sleep(read_time)
 
 
-# ------------------------ SEND THINGSPEAK ------------------------------#
+# --------------------- SEND TO THINGSPEAK ------------------------------- #
 def thingspeak_send(temp, hum, press):
     """
         Update the ThingSpeak channel using the requests library
     """
-    print("Update Thingspeak Channel")
+    print(" Update Thingspeak Channel")
 
     # Each field number corresponds to a field in ThingSpeak
     params = {
@@ -86,13 +94,13 @@ def thingspeak_send(temp, hum, press):
 
     # Was the update successful?
     if ts_update.status_code == requests.codes.ok:
-        print("Data Received!")
+        print(" Data Received!")
     else:
         print(f"Error Code: {ts_update.status_code}")
 
     # Print ThngSpeak response to console
     # ts_update.text is the thingspeak data entry number in the channel
-    print(f"ThingSpeak Channel Entry: {ts_update.text}")
+    print(f" ThingSpeak Channel Entry: {ts_update.text}")
 
 
 # If a standalone program, call the main function

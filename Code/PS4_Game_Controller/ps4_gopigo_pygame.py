@@ -30,7 +30,7 @@ import pygame
 import easygopigo3 as easy
 
 
-class Ps4Controller:
+class PS4Controller:
     """PlayStation 4 controller class"""
 
     def __init__(self, controller_number=0):
@@ -74,7 +74,7 @@ class GoPiGoController:
         self.FPS = 30          # Frames per second
 
         # Initialize components
-        self.controller = Ps4Controller(controller_number)
+        self.controller = PS4Controller(controller_number)
         self.gpg = easy.EasyGoPiGo3()
         self.running = False
 
