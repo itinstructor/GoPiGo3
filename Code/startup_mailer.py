@@ -129,8 +129,8 @@ def get_ip_address():
             print(e)
             # Increment the number of tries
             tries = tries + 1
-            # Wait 3 second before we try again
-            sleep(3)
+            # Wait 5 second before we try again
+            sleep(5)
     return local_ip_address
 
 
