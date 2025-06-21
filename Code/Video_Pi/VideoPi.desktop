@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=VideoPi
+Comment=VideoPi
+Exec=/usr/bin/python3 /home/pi/Code/video_pi.py
+NoDisplay=true
