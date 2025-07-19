@@ -35,7 +35,7 @@ My GoPiGo3 with all its modifications.
   - Go to [billthecomputerguy.com/gopigo](https://www.billthecomputerguy.com/gopigo) for example readings.
 - **GoPiGo3 Sensors Tutorial**
 - **GoPiGo Tutorials**
-- **Raspberry Pi Getting Started Buster, Bullseye, and Bookworm Tutorial**
+- **Raspberry Pi Getting Started Bullseye and Bookworm Tutorial**
 - **Raspberry Pi Sensors**
 
 ## Projects
