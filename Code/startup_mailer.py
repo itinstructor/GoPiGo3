@@ -26,12 +26,12 @@ import subprocess  # Access system commands for time sync
 # the email account that will receive email
 # Add another email address to the list with a , to
 # send messages to multiple accounts
-EMAIL_DEST = ["williamloring@hotmail.com"]
+EMAIL_DEST = ["Your email address here"]
 
 # *************************************************************************#
 # Email account and App password to send email through gmail
-EMAIL_FROM = "wnccrobotics@gmail.com"
-EMAIL_PASSWORD = "loyqlzkxisojeqsr"
+EMAIL_FROM = "Your email address here"
+APP_PASSWORD = "Your app password here"
 
 # Set to True to see all communication with the SMTP server
 SMTP_DEBUG = False
@@ -169,7 +169,7 @@ def sync_system_time():
 def main():
     send_mail(
         EMAIL_FROM,
-        EMAIL_PASSWORD,
+        APP_PASSWORD,
         EMAIL_DEST,
     )
 
