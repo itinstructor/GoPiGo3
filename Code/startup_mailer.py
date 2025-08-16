@@ -26,12 +26,14 @@ import subprocess  # Access system commands for time sync
 # the email account that will receive email
 # Add another email address to the list with a , to
 # send messages to multiple accounts
-EMAIL_DEST = ["Your email address here"]
+EMAIL_DEST = ["Your Email Address Here", "Another Email Address Here"]
 
 # *************************************************************************#
 # Email account and App password to send email through gmail
-EMAIL_FROM = "Your email address here"
-APP_PASSWORD = "Your app password here"
+EMAIL_FROM = "Your Email Address Here"
+# Use an App Password for Gmail accounts with 2FA enabled
+# Create an App Password at https://myaccount.google.com/apppasswords
+APP_PASSWORD = "Your App Password Here"
 
 # Set to True to see all communication with the SMTP server
 SMTP_DEBUG = False
@@ -102,10 +104,14 @@ def send_mail(email_source, email_password, email_destination):
     msg["From"] = email_source
     msg["To"] = email_destination
 
-    # Send email message
-    smtpserver.send_message(msg)
-    # Say goodbye to the smtp server
-    smtpserver.quit()
+    try:
+        # Send email message
+        smtpserver.send_message(msg)
+        print(f"Email sent to {email_destination} with subject: {subject}")
+        # Say goodbye to the smtp server
+        smtpserver.quit()
+    except smtplib.SMTPException as e:
+        print(f"Error sending email: {e}")
 
 
 # ----------------------TEST INTERNET CONNECTION -------------------------- #
@@ -122,11 +128,11 @@ def get_ip_address():
             # IP address and port to connect to
             local_socket.connect(("8.8.8.8", 80))
             local_ip_address = local_socket.getsockname()[0]
-            print(local_ip_address)
+            print(f"Local IP: {local_ip_address}")
             break
         except Exception as e:
             # Print exception for testing
-            print(e)
+            print(f"Failure getting IP: {e}")
             # Increment the number of tries
             tries = tries + 1
             # Wait 5 second before we try again
@@ -140,13 +146,13 @@ def sync_system_time():
     try:
         # Update system time using timedatectl (systemd-timesyncd)
         subprocess.run(["sudo", "timedatectl", "set-ntp", "true"], check=True)
-        # print("NTP synchronization enabled")
+        print("NTP synchronization enabled")
 
         # Force immediate synchronization
         subprocess.run(
             ["sudo", "systemctl", "restart", "systemd-timesyncd"], check=True
         )
-        # print("Time synchronization service restarted")
+        print("Time synchronization service restarted")
 
         # Wait a moment for sync to complete
         sleep(3)
