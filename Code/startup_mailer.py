@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
     Name: startup_mailer.py
     Author: William Loring
@@ -20,18 +19,22 @@ import socket  # Create local socket to get local IP address
 import datetime  # Get the current date and time
 from time import sleep  # Use in loop to pause for trying connections
 import platform  # Import platform module for getting hostname
+import subprocess  # Access system commands for time sync
 
 # *************************************************************************#
 # Change the following email address to
 # the email account that will receive email
 # Add another email address to the list with a , to
 # send messages to multiple accounts
-EMAIL_DEST = ["you@gmail.comcom"]
+EMAIL_DEST = ["williamloring@hotmail.com"]
 
 # *************************************************************************#
 # Email account and App password to send email through gmail
-EMAIL_FROM = "you@gmail.com"
-EMAIL_PASSWORD = "YourAppPassword"
+EMAIL_FROM = "wnccrobotics@gmail.com"
+EMAIL_PASSWORD = "loyqlzkxisojeqsr"
+
+# Set to True to see all communication with the SMTP server
+SMTP_DEBUG = False
 
 # *************************************************************************#
 #     DO NOT CHANGE ANYTHING BELOW THIS POINT                              #
@@ -45,11 +48,16 @@ PORT = 587
 def send_mail(email_source, email_password, email_destination):
     # Test internet access and return local ip address to include in email
     local_ip_address = get_ip_address()
+
+    # Sync system time now that internet access is confirmed
+    sync_system_time()
+
     # Get hostname using platform module
     hostname = platform.node()
 
     # Track how many times we tried to send email
     tries = 0
+
     # Loop until we connect with the SMTP server
     while True:
         # After 60 tries, exit
@@ -67,7 +75,7 @@ def send_mail(email_source, email_password, email_destination):
             sleep(5)
 
     # Show all communication with the server, for testing only
-    # smtpserver.set_debuglevel(True)
+    smtpserver.set_debuglevel(SMTP_DEBUG)
 
     # Create a secure SSL context
     context = ssl.create_default_context()
@@ -84,7 +92,7 @@ def send_mail(email_source, email_password, email_destination):
     today = today.strftime("%I:%M %p %x")
 
     # Email message
-    message_content = f"{today} \n  {hostname}IP address: {local_ip_address}"
+    message_content = f"{today} \n{hostname} IP address: {local_ip_address}"
     subject = f"{local_ip_address} {hostname} {today}"
 
     # Create Email message
@@ -100,7 +108,7 @@ def send_mail(email_source, email_password, email_destination):
     smtpserver.quit()
 
 
-# ---------------------- TEST INTERNET CONNECTION -------------------------- #
+# ----------------------TEST INTERNET CONNECTION -------------------------- #
 def get_ip_address():
     """Get local IP Address by connecting to Google DNS server
     This step is needed if there is more than one IP address on the host
@@ -114,7 +122,7 @@ def get_ip_address():
             # IP address and port to connect to
             local_socket.connect(("8.8.8.8", 80))
             local_ip_address = local_socket.getsockname()[0]
-            # print(ip_address) # For testing only
+            print(local_ip_address)
             break
         except Exception as e:
             # Print exception for testing
@@ -124,6 +132,38 @@ def get_ip_address():
             # Wait 5 second before we try again
             sleep(5)
     return local_ip_address
+
+
+# --------------------------SYNC SYSTEM TIME ------------------------------ #
+def sync_system_time():
+    """Synchronize system time using NTP after internet connection is confirmed"""
+    try:
+        # Update system time using timedatectl (systemd-timesyncd)
+        subprocess.run(["sudo", "timedatectl", "set-ntp", "true"], check=True)
+        # print("NTP synchronization enabled")
+
+        # Force immediate synchronization
+        subprocess.run(
+            ["sudo", "systemctl", "restart", "systemd-timesyncd"], check=True
+        )
+        # print("Time synchronization service restarted")
+
+        # Wait a moment for sync to complete
+        sleep(3)
+
+        # Verify sync status
+        result = subprocess.run(
+            ["timedatectl", "status"], capture_output=True, text=True
+        )
+        if "System clock synchronized: yes" in result.stdout:
+            print("System time successfully synchronized")
+        else:
+            print("Time sync may still be in progress")
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error synchronizing time: {e}")
+    except Exception as e:
+        print(f"Unexpected error during time sync: {e}")
 
 
 def main():
